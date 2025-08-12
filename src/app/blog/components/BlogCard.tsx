@@ -123,12 +123,16 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, onClick }) => {
         <div className="flex items-center justify-between mt-6">
           <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-xl">
             <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">{post.views || 0}</span>
+            <span className="text-sm font-medium text-blue-700 dark:text-blue-300 transition-all duration-300">
+              {post.views || 0}
+            </span>
           </div>
           
           <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-xl">
             <MessageSquare className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            <span className="text-sm font-medium text-purple-700 dark:text-purple-300">{post.comments || 0}</span>
+            <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+              {post.comments || 0} {post.comments === 1 ? 'comment' : 'comments'}
+            </span>
           </div>
           
           {post.rating > 0 && (

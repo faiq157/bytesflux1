@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../utils/supabaseClient';
 import { CreateCommentData } from '../../types';
 
-
 // GET /api/comments - Get comments for a specific post
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const postId = searchParams.get('post_id');
+    const postId = searchParams.get('postId');
 
     if (!postId) {
       return NextResponse.json(
@@ -16,13 +15,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let query = supabase
+    // Fetch comments for the specific post
+    const { data: comments, error } = await supabase
       .from('blog_comments')
       .select('*')
       .eq('post_id', postId)
       .order('created_at', { ascending: false });
-
-    const { data: comments, error } = await query;
 
     if (error) {
       console.error('Error fetching comments:', error);
@@ -32,26 +30,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Organize comments into a tree structure (parent-child relationships)
-    const commentMap = new Map();
-    const rootComments: any[] = [];
-
-    comments?.forEach(comment => {
-      commentMap.set(comment.id, { ...comment, replies: [] });
+    return NextResponse.json({
+      comments: comments || [],
+      count: comments?.length || 0
     });
 
-    comments?.forEach(comment => {
-      if (comment.parent_id) {
-        const parent = commentMap.get(comment.parent_id);
-        if (parent) {
-          parent.replies.push(commentMap.get(comment.id));
-        }
-      } else {
-        rootComments.push(commentMap.get(comment.id));
-      }
-    });
-
-    return NextResponse.json({ comments: rootComments });
   } catch (error) {
     console.error('Error in GET /api/comments:', error);
     return NextResponse.json(

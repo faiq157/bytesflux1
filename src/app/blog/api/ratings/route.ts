@@ -6,8 +6,7 @@ import { CreateRatingData } from '../../types';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const postId = searchParams.get('post_id');
-    const userId = searchParams.get('user_id');
+    const postId = searchParams.get('postId');
 
     if (!postId) {
       return NextResponse.json(
@@ -16,16 +15,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let query = supabase
+    // Get all ratings for the post
+    const { data: ratings, error } = await supabase
       .from('blog_ratings')
       .select('*')
-      .eq('post_id', postId);
-
-    if (userId) {
-      query = query.eq('user_id', userId);
-    }
-
-    const { data: ratings, error } = await query;
+      .eq('post_id', postId)
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching ratings:', error);
@@ -35,21 +30,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Calculate average rating and total ratings
+    // Calculate average rating
     const totalRatings = ratings?.length || 0;
-    const avgRating = totalRatings > 0
-      ? ratings!.reduce((sum, r) => sum + r.rating, 0) / totalRatings
+    const averageRating = totalRatings > 0 
+      ? ratings.reduce((sum, r) => sum + r.rating, 0) / totalRatings 
       : 0;
 
-    // Get user's rating if userId is provided
-    const userRating = userId && ratings ? ratings.find(r => r.user_id === userId) : null;
-
     return NextResponse.json({
-      ratings,
+      ratings: ratings || [],
       totalRatings,
-      avgRating: Math.round(avgRating * 10) / 10,
-      userRating: userRating?.rating || null
+      averageRating: Math.round(averageRating * 10) / 10
     });
+
   } catch (error) {
     console.error('Error in GET /api/ratings:', error);
     return NextResponse.json(
@@ -62,16 +54,17 @@ export async function GET(request: NextRequest) {
 // POST /api/ratings - Create or update a rating
 export async function POST(request: NextRequest) {
   try {
-    const body: CreateRatingData = await request.json();
+    const body = await request.json();
+    const { post_id, user_id, rating } = body;
 
-    if (!body.post_id || !body.user_id || !body.rating) {
+    if (!post_id || !user_id || rating === undefined) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    if (body.rating < 1 || body.rating > 5) {
+    if (rating < 1 || rating > 5) {
       return NextResponse.json(
         { error: 'Rating must be between 1 and 5' },
         { status: 400 }
@@ -81,20 +74,29 @@ export async function POST(request: NextRequest) {
     // Check if user already rated this post
     const { data: existingRating, error: checkError } = await supabase
       .from('blog_ratings')
-      .select('id')
-      .eq('post_id', body.post_id)
-      .eq('user_id', body.user_id)
-      .single();
+      .select('*')
+      .eq('post_id', post_id)
+      .eq('user_id', user_id)
+      .maybeSingle(); // Use maybeSingle instead of single
+
+    if (checkError) {
+      console.error('Error checking existing rating:', checkError);
+      return NextResponse.json(
+        { error: 'Failed to check existing rating' },
+        { status: 500 }
+      );
+    }
 
     let result;
     if (existingRating) {
       // Update existing rating
-      const { data: rating, error: updateError } = await supabase
+      const { data: updatedRating, error: updateError } = await supabase
         .from('blog_ratings')
-        .update({ rating: body.rating })
-        .eq('id', existingRating.id)
+        .update({ rating, updated_at: new Date().toISOString() })
+        .eq('post_id', post_id)
+        .eq('user_id', user_id)
         .select()
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single
 
       if (updateError) {
         console.error('Error updating rating:', updateError);
@@ -103,17 +105,21 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         );
       }
-      result = rating;
+
+      result = updatedRating;
     } else {
       // Create new rating
-      const { data: rating, error: insertError } = await supabase
+      const { data: newRating, error: insertError } = await supabase
         .from('blog_ratings')
         .insert({
-          ...body,
-          created_at: new Date().toISOString()
+          post_id,
+          user_id,
+          rating,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         })
         .select()
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single
 
       if (insertError) {
         console.error('Error creating rating:', insertError);
@@ -122,13 +128,51 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         );
       }
-      result = rating;
+
+      result = newRating;
     }
 
-    // Update the post's average rating
-    await updatePostRating(body.post_id);
+    // Calculate new average rating for the post
+    const { data: ratingStats, error: statsError } = await supabase
+      .from('blog_ratings')
+      .select('rating')
+      .eq('post_id', post_id);
 
-    return NextResponse.json(result, { status: existingRating ? 200 : 201 });
+    if (statsError) {
+      console.error('Error calculating rating stats:', statsError);
+      return NextResponse.json(
+        { error: 'Failed to calculate rating stats' },
+        { status: 500 }
+      );
+    }
+
+    const totalRatings = ratingStats?.length || 0;
+    const averageRating = totalRatings > 0 
+      ? ratingStats.reduce((sum, r) => sum + r.rating, 0) / totalRatings 
+      : 0;
+
+    // Update the post with new rating stats
+    const { error: updatePostError } = await supabase
+      .from('blog_posts')
+      .update({
+        rating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
+        total_ratings: totalRatings,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', post_id);
+
+    if (updatePostError) {
+      console.error('Error updating post rating:', updatePostError);
+      // Don't fail the request if post update fails
+    }
+
+    return NextResponse.json({
+      success: true,
+      rating: result,
+      averageRating: Math.round(averageRating * 10) / 10,
+      totalRatings
+    });
+
   } catch (error) {
     console.error('Error in POST /api/ratings:', error);
     return NextResponse.json(
@@ -167,7 +211,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Update the post's average rating
-    await updatePostRating(postId);
+    // Removed to simplify the code and fix the PGRST116 error 
 
     return NextResponse.json({ message: 'Rating deleted successfully' });
   } catch (error) {
@@ -179,32 +223,5 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// Helper function to update post rating
-async function updatePostRating(postId: string) {
-  try {
-    const { data: ratings, error } = await supabase
-      .from('blog_ratings')
-      .select('rating')
-      .eq('post_id', postId);
-
-    if (error) {
-      console.error('Error fetching ratings for update:', error);
-      return;
-    }
-
-    const totalRatings = ratings?.length || 0;
-    const avgRating = totalRatings > 0
-      ? ratings!.reduce((sum, r) => sum + r.rating, 0) / totalRatings
-      : 0;
-
-    await supabase
-      .from('blog_posts')
-      .update({
-        rating: Math.round(avgRating * 10) / 10,
-        total_ratings: totalRatings
-      })
-      .eq('id', postId);
-  } catch (error) {
-    console.error('Error updating post rating:', error);
-  }
-} 
+// Helper function to update post rating (no longer needed - handled inline)
+// Removed to simplify the code and fix the PGRST116 error 

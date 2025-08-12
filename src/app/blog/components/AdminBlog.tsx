@@ -6,6 +6,7 @@ import { BlogPost } from '../types';
 import BlogPostForm from './BlogPostForm';
 import BlogPostList from './BlogPostList';
 import CommentManagement from './CommentManagement';
+import RealTimeViewCounter from './RealTimeViewCounter';
 
 const AdminBlog: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -165,13 +166,13 @@ const AdminBlog: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button
+              {/* <button
                 onClick={() => setCurrentView('comments')}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 flex items-center space-x-2"
               >
                 <Eye className="h-4 w-4" />
                 <span>Comments</span>
-              </button>
+              </button> */}
               <button
                 onClick={() => setCurrentView('form')}
                 className="bg-gradient-to-r from-blue-600 to-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 flex items-center space-x-2"
@@ -385,7 +386,13 @@ const AdminBlog: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Eye className="w-4 h-4" />
-                        <span>{post.views || 0} views</span>
+                        <RealTimeViewCounter 
+                          postId={post.id} 
+                          initialViews={post.views || 0}
+                          showIcon={false}
+                          size="sm"
+                        />
+                        <span className="text-gray-500 dark:text-gray-400">views</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Star className="w-4 h-4" />

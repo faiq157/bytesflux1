@@ -52,10 +52,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
     }
 
-    // Process posts to add comment counts
+    // Process posts to add comment counts and real-time view counts
     const processedPosts = posts?.map(post => ({
       ...post,
-      comments: Array.isArray(post.comments) ? post.comments.length : 0
+      comments: Array.isArray(post.comments) ? post.comments.length : 0,
+      // Use the real-time view count from the views table
+      views: post.views || 0
     })) || [];
 
     const totalPages = Math.ceil((count || 0) / limit);

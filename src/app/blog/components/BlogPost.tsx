@@ -1,28 +1,41 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Star, MessageSquare, Eye, Calendar, User, Tag, Share2, ThumbsUp, ThumbsDown, BookOpen, Clock, TrendingUp, Heart } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { MessageSquare, Calendar, Clock, User, Eye, Star, Tag, Share2, Bookmark, ArrowLeft } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import type { BlogPost as BlogPostType, BlogComment, CreateCommentData } from '../types';
+import { BlogPost as BlogPostType, BlogComment } from '../types';
 import { generateBlogPostSchema, generateBreadcrumbSchema } from '../../lib/seo';
+import { useViewTracking } from '../../hooks/useViewTracking';
 import Head from 'next/head';
 
 interface BlogPostProps {
   post: BlogPostType;
 }
 
-export default function BlogPost({ post }: BlogPostProps) {
+export default function BlogPost({ post }: { post: BlogPostType }) {
   const [comments, setComments] = useState<BlogComment[]>([]);
-  const [userRating, setUserRating] = useState<number | null>(null);
   const [showComments, setShowComments] = useState(false);
-  const [newComment, setNewComment] = useState('');
   const [commentAuthor, setCommentAuthor] = useState('');
   const [commentEmail, setCommentEmail] = useState('');
+  const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [submittingRating, setSubmittingRating] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [userRating, setUserRating] = useState(0);
+  const [isRatingSubmitted, setIsRatingSubmitted] = useState(false);
+
+  // Initialize view tracking
+  const { views, trackView, isLoading: viewsLoading } = useViewTracking({
+    postId: post.id,
+    initialViews: post.views || 0
+  });
+
+  // Track view when component mounts
+  useEffect(() => {
+    trackView();
+  }, [trackView]);
 
   // Generate SEO schema markup
   const blogPostSchema = generateBlogPostSchema({
@@ -48,27 +61,15 @@ export default function BlogPost({ post }: BlogPostProps) {
     { name: post.title, url: `/blog/${post.slug}` }
   ]);
 
+  // Fetch comments when component mounts
   useEffect(() => {
-    const loadPostData = async () => {
-      setLoading(true);
-      try {
-        await Promise.all([
-          fetchComments(),
-          fetchUserRating()
-        ]);
-      } catch (error) {
-        console.error('Error loading post data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchComments();
+  }, []);
 
-    loadPostData();
-  }, [post.id]);
-
+  // Fetch comments for this post
   const fetchComments = async () => {
     try {
-      const response = await fetch(`/blog/api/comments?post_id=${post.id}`);
+      const response = await fetch(`/blog/api/comments?postId=${post.id}`);
       const data = await response.json();
       
       if (data.comments) {
@@ -76,6 +77,57 @@ export default function BlogPost({ post }: BlogPostProps) {
       }
     } catch (error) {
       console.error('Error fetching comments:', error);
+      toast.error('Failed to fetch comments');
+    }
+  };
+
+  // Submit a new comment
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!commentAuthor.trim() || !commentEmail.trim() || !newComment.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    try {
+      setSubmittingComment(true);
+      
+      const commentData = {
+        post_id: post.id,
+        author: commentAuthor.trim(),
+        email: commentEmail.trim(),
+        content: newComment.trim(),
+      };
+
+      const response = await fetch('/blog/api/comments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit comment');
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        toast.success('Comment submitted successfully!');
+        setCommentAuthor('');
+        setCommentEmail('');
+        setNewComment('');
+        
+        // Refresh comments to show the new one
+        await fetchComments();
+      }
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+      toast.error('Failed to submit comment');
+    } finally {
+      setSubmittingComment(false);
     }
   };
 
@@ -127,49 +179,6 @@ export default function BlogPost({ post }: BlogPostProps) {
     }
   };
 
-  const handleCommentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!commentAuthor.trim() || !commentEmail.trim() || !newComment.trim()) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-
-    try {
-      setSubmittingComment(true);
-      
-      const commentData: CreateCommentData = {
-        post_id: post.id,
-        author: commentAuthor.trim(),
-        email: commentEmail.trim(),
-        content: newComment.trim(),
-      };
-
-      const response = await fetch('/blog/api/comments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(commentData),
-      });
-
-      if (response.ok) {
-        toast.success('Comment submitted successfully! It will be reviewed before appearing.');
-        setNewComment('');
-        setCommentAuthor('');
-        setCommentEmail('');
-        fetchComments();
-      } else {
-        toast.error('Failed to submit comment');
-      }
-    } catch (error) {
-      console.error('Error submitting comment:', error);
-      toast.error('Failed to submit comment');
-    } finally {
-      setSubmittingComment(false);
-    }
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -197,7 +206,7 @@ export default function BlogPost({ post }: BlogPostProps) {
   };
 
   const renderStars = (rating: number, interactive = false, onStarClick?: (rating: number) => void) => {
-    return (
+  return (
       <div className="flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
@@ -240,7 +249,7 @@ export default function BlogPost({ post }: BlogPostProps) {
       />
       
       <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {loading ? (
+      {viewsLoading ? (
         <div className="text-center py-20">
           <div className="relative">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
@@ -257,18 +266,18 @@ export default function BlogPost({ post }: BlogPostProps) {
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-indigo-600/5 rounded-3xl"></div>
             
             <div className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
-              {/* Category Badge */}
+          {/* Category Badge */}
               <div className="mb-6">
                 <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-200 border border-blue-200/50 dark:border-blue-700/50">
-                  {post.category}
-                </span>
-              </div>
-              
-              {/* Title */}
+              {post.category}
+            </span>
+          </div>
+
+          {/* Title */}
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-                {post.title}
-              </h1>
-              
+            {post.title}
+          </h1>
+
               {/* Excerpt */}
               <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-4xl">
                 {post.excerpt}
@@ -289,23 +298,23 @@ export default function BlogPost({ post }: BlogPostProps) {
                 <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700/50 px-4 py-3 rounded-xl">
                   <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
                     <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  </div>
+            </div>
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Published</p>
                     <p className="font-semibold text-gray-900 dark:text-white">{formatDate(post.date)}</p>
-                  </div>
-                </div>
+            </div>
+            </div>
                 
                 <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700/50 px-4 py-3 rounded-xl">
                   <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                     <Eye className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  </div>
+            </div>
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Views</p>
-                    <p className="font-semibold text-gray-900 dark:text-white">{post.views || 0}</p>
-                  </div>
-                </div>
-                
+                    <p className="font-semibold text-gray-900 dark:text-white">{views}</p>
+            </div>
+          </div>
+
                 <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700/50 px-4 py-3 rounded-xl">
                   <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
                     <MessageSquare className="w-5 h-5 text-orange-600 dark:text-orange-400" />
@@ -355,7 +364,7 @@ export default function BlogPost({ post }: BlogPostProps) {
                 >
                   <Share2 className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
                   Share Article
-                </button>
+            </button>
                 
                 <button
                   onClick={() => setShowComments(!showComments)}
@@ -363,24 +372,24 @@ export default function BlogPost({ post }: BlogPostProps) {
                 >
                   <MessageSquare className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
                   {showComments ? 'Hide Comments' : `View Comments (${comments.length})`}
-                </button>
-              </div>
-            </div>
+            </button>
           </div>
+        </div>
+      </div>
 
-          {/* Featured Image */}
+      {/* Featured Image */}
           {post.image && (
             <div className="mb-12">
               <div className="relative overflow-hidden rounded-3xl shadow-2xl">
                 <img
                   src={post.image}
-                  alt={post.title}
+              alt={post.title}
                   className="w-full h-80 md:h-96 object-cover hover:scale-105 transition-transform duration-700"
-                />
+            />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
-              </div>
-            </div>
-          )}
+          </div>
+        </div>
+      )}
 
           {/* Enhanced Content Section with Production Markdown Rendering */}
           <div className="relative mb-16">
@@ -417,7 +426,7 @@ export default function BlogPost({ post }: BlogPostProps) {
                           <pre className="bg-gray-900 dark:bg-gray-800 p-4 rounded-b-lg overflow-x-auto">
                             <code className="text-gray-100 text-sm font-mono leading-relaxed">{children}</code>
                           </pre>
-                        </div>
+          </div>
                       );
                     },
                     a: ({href, children}) => (
@@ -440,7 +449,7 @@ export default function BlogPost({ post }: BlogPostProps) {
                         {alt && (
                           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 italic">{alt}</p>
                         )}
-                      </div>
+            </div>
                     ),
                     strong: ({children}) => <strong className="font-bold text-gray-900 dark:text-white">{children}</strong>,
                     em: ({children}) => <em className="italic text-gray-700 dark:text-gray-300">{children}</em>,
@@ -448,7 +457,7 @@ export default function BlogPost({ post }: BlogPostProps) {
                     table: ({children}) => (
                       <div className="overflow-x-auto mb-6 border border-gray-300 dark:border-gray-600 rounded-lg">
                         <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">{children}</table>
-                      </div>
+          </div>
                     ),
                     thead: ({children}) => <thead className="bg-gray-50 dark:bg-gray-700">{children}</thead>,
                     tbody: ({children}) => <tbody className="divide-y divide-gray-300 dark:divide-gray-600 bg-white dark:bg-gray-800">{children}</tbody>,
@@ -469,8 +478,8 @@ export default function BlogPost({ post }: BlogPostProps) {
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Rate this post</h3>
                 <p className="text-gray-600 dark:text-gray-300">Share your thoughts and help others discover great content</p>
-              </div>
-              
+        </div>
+
               <div className="flex flex-col items-center gap-6">
                 <div className="flex items-center gap-4">
                   <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">Your rating:</span>
@@ -515,7 +524,7 @@ export default function BlogPost({ post }: BlogPostProps) {
                   <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Leave a Comment
                   </h4>
-                  <form onSubmit={handleCommentSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmitComment} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -529,8 +538,8 @@ export default function BlogPost({ post }: BlogPostProps) {
                           placeholder="Your name"
                           required
                         />
-                      </div>
-                      
+        </div>
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Email *
@@ -543,9 +552,9 @@ export default function BlogPost({ post }: BlogPostProps) {
                           placeholder="your.email@example.com"
                           required
                         />
-                      </div>
-                    </div>
-                    
+            </div>
+          </div>
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Comment *
@@ -664,18 +673,18 @@ export default function BlogPost({ post }: BlogPostProps) {
                                   <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                                     {reply.content}
                                   </p>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
                       )}
                     </div>
                   ))
                 )}
-              </div>
-            </div>
-          </div>
+        </div>
+      </div>
+    </div>
         </>
       )}
     </article>
