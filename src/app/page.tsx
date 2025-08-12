@@ -19,14 +19,70 @@ export default function Home() {
         canonical="/"
         structuredData={{
           "@context": "https://schema.org",
-          "@type": "WebSite",
+          "@type": "Organization",
           "name": "BytesFlux",
-          "description": "Professional web development, mobile app development, graphic design, and SEO services in Pakistan",
+          "alternateName": "BytesFlux Digital Solutions",
+          "description": "Pakistan's leading web development, mobile app development, graphic design, and SEO services company",
           "url": "https://bytesflux.com",
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://bytesflux.com/search?q={search_term_string}",
-            "query-input": "required name=search_term_string"
+          "logo": "https://bytesflux.com/logo.png",
+          "image": "https://bytesflux.com/logo.png",
+          "sameAs": [
+            "https://facebook.com/bytesflux",
+            "https://twitter.com/bytesflux",
+            "https://linkedin.com/company/bytesflux",
+            "https://instagram.com/bytesflux"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "availableLanguage": "English",
+            "areaServed": "Pakistan",
+            "serviceArea": {
+              "@type": "Country",
+              "name": "Pakistan"
+            }
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "Pakistan"
+          },
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Digital Services",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Web Development",
+                  "description": "Custom website development services"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Mobile App Development",
+                  "description": "iOS and Android app development"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Graphic Design",
+                  "description": "Professional graphic design services"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "SEO Services",
+                  "description": "Search engine optimization services"
+                }
+              }
+            ]
           }
         }}
       />

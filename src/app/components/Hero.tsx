@@ -109,7 +109,7 @@ const Hero = () => {
                     {/* Optimized Subtext */}
                     <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
                         BytesFlux delivers cutting-edge software development, stunning graphic design, and strategic social media management. 
-                        We transform your ideas into powerful digital solutions that drive growth and engagement.
+                        As Pakistan's premier digital solutions provider, BytesFlux transforms your ideas into powerful digital solutions that drive growth and engagement.
                     </p>
 
                     {/* Optimized Service Highlights */}
