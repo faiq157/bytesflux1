@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { ArrowRight, Play, Zap, Code, Palette, Share2 } from 'lucide-react';
 import ParticleBackground from './ParticleBackground';
 import AnimatedBackground from './AnimatedBackground';
@@ -48,13 +49,20 @@ const Hero = () => {
             
             <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 z-10">
                 <div className="text-center max-w-4xl mx-auto">
-                    {/* Simplified Electric Logo Animation */}
+                    {/* Logo Animation */}
                     <div className="flex justify-center mb-8">
                         <div className="relative group">
-                            <div className="bg-gradient-to-r from-blue-600 to-teal-600 p-4 rounded-2xl transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-2xl">
-                                <Zap className="h-12 w-12 text-white" />
+                            <div className="relative w-20 h-20 bg-gradient-to-r from-blue-600 to-teal-600 p-2 rounded-2xl transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-2xl">
+                                <Image
+                                    src="/logo.png"
+                                    alt="BytesFlux Logo"
+                                    width={64}
+                                    height={64}
+                                    className="w-full h-full object-contain"
+                                    priority
+                                />
                             </div>
-                            {/* Reduced electric sparks for performance */}
+                            {/* Electric sparks for performance */}
                             {showBackgrounds && (
                                 <div className="absolute -inset-4">
                                     {[...Array(3)].map((_, i) => (

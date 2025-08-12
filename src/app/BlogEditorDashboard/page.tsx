@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Edit, Trash2, Eye, EyeOff, Star, Upload, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import BlogPostForm from '../../blog/components/BlogPostForm';
-import BlogPostList from '../../blog/components/BlogPostList';
-import CommentManagement from '../../blog/components/CommentManagement';
-import { BlogPost } from '../../blog/types';
+import BlogPostForm from '../blog/components/BlogPostForm';
+import BlogPostList from '../blog/components/BlogPostList';
+import CommentManagement from '../blog/components/CommentManagement';
+import { BlogPost } from '../blog/types';
 
 export default function BlogEditorDashboard() {
   const [posts, setPosts] = useState<BlogPost[]>([]);

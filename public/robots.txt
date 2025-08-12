@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://bytesflux.com/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /api/
+
+# Allow important pages
+Allow: /
+Allow: /web-development
+Allow: /mobile-app-development
+Allow: /graphic-design
+Allow: /seo-services
+Allow: /blog
+Allow: /about
+Allow: /contact
+
+# Crawl delay
+Crawl-delay: 1 

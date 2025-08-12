@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-
+import Image from 'next/image';
 import { Menu, X, Zap, Sun, Moon, ChevronDown } from 'lucide-react';
-
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { isAuthenticated } from '../lib/auth';
@@ -37,10 +36,11 @@ const Header = () => {
   const isHomePage = location.pathname === '/';
 
   const services = [
-    { name: 'Web Development', path: '/pages/web-development' },
-    { name: 'Mobile App Development', path: '/pages/mobile-app-development' },
-    { name: 'Graphic Design', path: '/pages/graphic-design' },
-    { name: 'SEO Services', path: '/pages/seo-services' }
+    { name: 'All Services', path: '/services' },
+    { name: 'Web Development', path: '/web-development' },
+    { name: 'Mobile App Development', path: '/mobile-app-development' },
+    { name: 'Graphic Design', path: '/graphic-design' },
+    { name: 'SEO Services', path: '/seo-services' }
   ];
 
 
@@ -50,14 +50,21 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div onClick={() => scrollToSection('home')} className="flex items-center space-x-2">
-            <div className="bg-gradient-to-r from-blue-600 to-teal-600 p-2 rounded-lg transform hover:scale-110 transition-transform duration-300">
-              <Zap className="h-6 w-6 text-white" />
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="relative w-10 h-10 bg-gradient-to-r from-blue-600 to-teal-600 p-1 rounded-lg transform hover:scale-110 transition-transform duration-300">
+              <Image
+                src="/logo.png"
+                alt="BytesFlux Logo"
+                width={32}
+                height={32}
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
               BytesFlux
             </span>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
@@ -135,6 +142,22 @@ const Header = () => {
                   className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200 relative group"
                 >
                   Blog
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-teal-600 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+                
+                <Link
+                  href="/about"
+                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200 relative group"
+                >
+                  About
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-teal-600 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+                
+                <Link
+                  href="/contact"
+                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200 relative group"
+                >
+                  Contact
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-teal-600 group-hover:w-full transition-all duration-300"></span>
                 </Link>
                 
@@ -321,6 +344,30 @@ const Header = () => {
                       </div>
                     )}
                   </div>
+                  
+                  <Link
+                    href="/about"
+                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-left transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    About
+                  </Link>
+                  
+                  <Link
+                    href="/contact"
+                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-left transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Contact
+                  </Link>
+                  
+                  <Link
+                    href="/blog"
+                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-left transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Blog
+                  </Link>
                 </>
               )}
             </nav>

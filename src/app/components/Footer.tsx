@@ -1,29 +1,28 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import { Zap, Github, Twitter, Linkedin, Instagram, Mail } from 'lucide-react';
+import Link from 'next/link';
 
 const Footer = () => {
   const socialLinks = [
-
     { icon: Linkedin, href: 'https://www.linkedin.com/company/bytesflux/?viewAsMember=true', label: 'LinkedIn' },
     { icon: Instagram, href: 'https://www.instagram.com/bytesflux', label: 'Instagram' },
-
     { icon: Mail, href: 'mailto:hello@bytesflux.com', label: 'Email' }
-
   ];
 
   const quickLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'Services', href: '#services' },
-    { name: 'About', href: '#about' },
-    { name: 'Contact', href: '#contact' }
+    { name: 'Home', href: '/', isInternal: true },
+    { name: 'Services', href: '/services', isInternal: true },
+    { name: 'About', href: '/about', isInternal: true },
+    { name: 'Contact', href: '#contact', isInternal: false }
   ];
 
   const services = [
-    'Software Development',
-    'Graphic Design',
-    'Social Media Management',
-    'Mobile App Development'
+    { name: 'Software Development', href: '/web-development' },
+    { name: 'Graphic Design', href: '/graphic-design' },
+    { name: 'Social Media Management', href: '/seo-services' },
+    { name: 'Mobile App Development', href: '/mobile-app-development' }
   ];
 
   const scrollToSection = (sectionId: string) => {
@@ -45,12 +44,18 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-2 transform hover:translate-y-1 transition-transform duration-300">
-            <div className="flex items-center space-x-2 mb-6 group">
-              <div className="bg-gradient-to-r from-blue-600 to-teal-600 p-2 rounded-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
-                <Zap className="h-6 w-6 text-white" />
+            <Link href="/" className="flex items-center space-x-2 mb-6 group">
+              <div className="relative w-10 h-10 bg-gradient-to-r from-blue-600 to-teal-600 p-1 rounded-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                <Image
+                  src="/logo.png"
+                  alt="BytesFlux Logo"
+                  width={32}
+                  height={32}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="text-2xl font-bold group-hover:text-blue-400 transition-colors duration-300">BytesFlux</span>
-            </div>
+            </Link>
             <p className="text-gray-300 mb-6 max-w-md leading-relaxed transform hover:translate-x-1 transition-transform duration-300">
               Empowering businesses through innovative software development, stunning graphic design, 
               and strategic social media management. Your digital transformation partner.
@@ -62,6 +67,8 @@ const Footer = () => {
                   <a
                     key={index}
                     href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label={social.label}
                     className="bg-gray-800 dark:bg-gray-900 p-3 rounded-lg hover:bg-gradient-to-r hover:from-blue-600 hover:to-teal-600 transition-all duration-300 transform hover:-translate-y-2 hover:scale-110 hover:rotate-3 shadow-lg hover:shadow-2xl"
                   >
@@ -78,12 +85,21 @@ const Footer = () => {
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <li key={index}>
-                  <button
-                    onClick={() => scrollToSection(link.href)}
-                    className="text-gray-300 hover:text-white hover:translate-x-1 transform transition-all duration-200 block"
-                  >
-                    {link.name}
-                  </button>
+                  {link.isInternal ? (
+                    <Link
+                      href={link.href}
+                      className="text-gray-300 hover:text-white hover:translate-x-1 transform transition-all duration-200 block"
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => scrollToSection(link.href)}
+                      className="text-gray-300 hover:text-white hover:translate-x-1 transform transition-all duration-200 block"
+                    >
+                      {link.name}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -95,9 +111,12 @@ const Footer = () => {
             <ul className="space-y-3">
               {services.map((service, index) => (
                 <li key={index}>
-                  <span className="text-gray-300 hover:text-white hover:translate-x-1 transform transition-all duration-200 block cursor-pointer">
-                    {service}
-                  </span>
+                  <Link
+                    href={service.href}
+                    className="text-gray-300 hover:text-white hover:translate-x-1 transform transition-all duration-200 block cursor-pointer"
+                  >
+                    {service.name}
+                  </Link>
                 </li>
               ))}
             </ul>

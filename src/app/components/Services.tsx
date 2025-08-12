@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Code, Palette, Share2, Smartphone, Zap, Search } from 'lucide-react';
 import SVGLightning from './SVGLightning';
 import Link from 'next/link';
@@ -73,8 +74,14 @@ const Services = () => {
         {/* Optimized Section Header */}
         <div className="text-center mb-16">
           <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-r from-blue-600 to-teal-600 p-3 rounded-xl transform hover:scale-110 hover:rotate-3 transition-all duration-300 shadow-lg">
-              <Zap className="h-8 w-8 text-white" />
+            <div className="relative w-16 h-16 bg-gradient-to-r from-blue-600 to-teal-600 p-2 rounded-xl transform hover:scale-110 hover:rotate-3 transition-all duration-300 shadow-lg">
+              <Image
+                src="/logo.png"
+                alt="BytesFlux Logo"
+                width={48}
+                height={48}
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
