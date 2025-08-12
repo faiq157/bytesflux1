@@ -24,9 +24,9 @@ const postSchema = z.object({
     title: z.string().min(1, 'SEO title is required'),
     description: z.string().min(1, 'SEO description is required'),
     keywords: z.string().min(1, 'SEO keywords are required'),
-    canonical: z.string().optional(),
-    ogType: z.string().default('article'),
-    structuredData: z.any().optional(),
+    canonical: z.string().min(1, 'Canonical URL is required'),
+    ogType: z.string().min(1, 'OG type is required'),
+    structuredData: z.any(),
   }),
 });
 

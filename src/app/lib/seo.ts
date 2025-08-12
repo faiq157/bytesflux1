@@ -72,12 +72,10 @@ export const generateBlogPostSchema = (post: BlogPostSEO): any => {
 
   // Add rating if available
   if (post.rating > 0) {
-    schema.aggregateRating = {
+    (schema as any).aggregateRating = {
       "@type": "AggregateRating",
       "ratingValue": post.rating,
       "reviewCount": post.totalRatings,
-      "bestRating": 5,
-      "worstRating": 1
     };
   }
 

@@ -89,7 +89,7 @@ export default function BlogPostList({
                     {post.title}
                   </h3>
                   {getStatusBadge(post.published)}
-                  {getFeaturedBadge(post.featured)}
+                  {getFeaturedBadge(post.featured ?? false)}
                 </div>
 
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">
@@ -155,13 +155,13 @@ export default function BlogPostList({
                 <button
                   onClick={() => onToggleFeatured(post)}
                   className={`inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                    post.featured
+                    (post.featured ?? false)
                       ? 'text-purple-700 bg-white hover:bg-purple-50 border-purple-300'
                       : 'text-gray-700 bg-white hover:bg-gray-50 border-gray-300'
                   }`}
                 >
-                  <Star className={`w-4 h-4 mr-2 ${post.featured ? 'text-purple-500 fill-current' : ''}`} />
-                  {post.featured ? 'Unfeature' : 'Feature'}
+                  <Star className={`w-4 h-4 mr-2 ${(post.featured ?? false) ? 'text-purple-500 fill-current' : ''}`} />
+                  {(post.featured ?? false) ? 'Unfeature' : 'Feature'}
                 </button>
 
                 <button

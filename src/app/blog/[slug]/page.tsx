@@ -1,12 +1,13 @@
 
 import { notFound } from 'next/navigation';
-import { supabase } from '../utils/supabaseClient';
+import { supabase } from "../utils/supabaseClient"
 
-export default async function BlogPost({ params }: { params: { slug: string } }) {
+export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const { data: post } = await supabase
     .from('blog_posts')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single();
 
   if (!post) return notFound();
