@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../utils/supabaseClient';
+import { supabase, supabaseAdmin } from '../../utils/supabaseClient';
 import { CreateRatingData } from '../../types';
 
 // GET /api/ratings - Get ratings for a specific post
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
       : 0;
 
     // Update the post with new rating stats
-    const { error: updatePostError } = await supabase
+    const { error: updatePostError } = await supabaseAdmin
       .from('blog_posts')
       .update({
         rating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
@@ -196,7 +196,8 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { error } = await supabase
+    // Use admin client to bypass RLS policies
+    const { error } = await supabaseAdmin
       .from('blog_ratings')
       .delete()
       .eq('post_id', postId)

@@ -6,20 +6,20 @@ export interface BlogPost {
   author: string;
   author_id: string;
   date: string;
-  readTime: string;
+  read_time: string | null;
   category: string;
   tags: string[];
-  image: string;
+  image: string | null;
   slug: string;
   path: string;
-  featured?: boolean;
-  published: boolean;
-  views: number;
-  rating: number;
-  total_ratings: number;
+  featured: boolean | null;
+  published: boolean | null;
+  views: number | null;
+  rating: number | null;
+  total_ratings: number | null;
   comments: number;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
   seo: {
     title: string;
     description: string;
@@ -27,7 +27,7 @@ export interface BlogPost {
     canonical: string;
     ogType: string;
     structuredData: any;
-  };
+  } | null;
 }
 
 export interface BlogCategory {
@@ -97,10 +97,10 @@ export interface CreateBlogPostData {
   content: string;
   category: string;
   tags: string[];
-  image: string;
-  published: boolean;
-  featured: boolean;
-  seo: {
+  image?: string;
+  published?: boolean;
+  featured?: boolean;
+  seo?: {
     title: string;
     description: string;
     keywords: string;

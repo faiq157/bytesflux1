@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     // Process posts to add comment counts and real-time view counts
     const processedPosts = posts?.map(post => ({
       ...post,
-      comments: Array.isArray(post.comments) ? post.comments.length : 0,
+      comments: post.comments?.[0]?.count || 0,
       // Use the real-time view count from the views table
       views: post.views || 0
     })) || [];
@@ -103,20 +103,29 @@ export async function POST(request: NextRequest) {
     const readTime = Math.ceil(wordCount / 200);
 
     const postData = {
-      ...body,
+      title: body.title,
+      excerpt: body.excerpt,
+      content: body.content,
+      category: body.category,
+      tags: body.tags || [],
+      image: body.image || null,
+      published: body.published || false,
+      featured: body.featured || false,
+      seo: body.seo || {},
       slug,
       read_time: `${readTime} min read`,
+      author: 'Admin User', // Default author name
       author_id: 'admin', // This should come from auth context
       date: new Date().toISOString(),
       views: 0,
       rating: 0,
       total_ratings: 0,
-      comments: 0,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       path: `/blog/${slug}`
     };
 
+    // Use regular client for public access
     const { data: post, error } = await supabase
       .from('blog_posts')
       .insert(postData)
@@ -175,6 +184,7 @@ export async function PUT(request: NextRequest) {
       updateData.read_time = `${readTime} min read`;
     }
 
+    // Use regular client for public access
     const { data: post, error } = await supabase
       .from('blog_posts')
       .update(updateData)
@@ -213,6 +223,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // Use regular client for public access
     // Delete related comments and ratings first
     await supabase.from('blog_comments').delete().eq('post_id', id);
     await supabase.from('blog_ratings').delete().eq('post_id', id);

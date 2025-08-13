@@ -68,7 +68,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, onClick }) => {
         <div className="absolute bottom-4 right-4 z-10">
           <div className="bg-black/70 dark:bg-gray-900/70 backdrop-blur-sm px-3 py-1.5 rounded-xl text-white text-xs font-medium flex items-center gap-1">
             <BookOpen className="w-3 h-3" />
-            {post.readTime}
+            {post.read_time}
           </div>
         </div>
       </div>
@@ -114,7 +114,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, onClick }) => {
             </div>
             <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-xl">
               <Clock className="w-4 h-4" />
-              <span className="font-medium">{post.readTime}</span>
+              <span className="font-medium">{post.read_time}</span>
             </div>
           </div>
         </div>
@@ -131,14 +131,14 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, onClick }) => {
           <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-xl">
             <MessageSquare className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
-              {post.comments || 0} {post.comments === 1 ? 'comment' : 'comments'}
+                                      {post.comments || 0} {(post.comments || 0) === 1 ? 'comment' : 'comments'}
             </span>
           </div>
           
-          {post.rating > 0 && (
+          {(post.rating || 0) > 0 && (
             <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 px-3 py-1.5 rounded-xl">
               <Star className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-              <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">{post.rating.toFixed(1)}</span>
+              <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">{(post.rating || 0).toFixed(1)}</span>
             </div>
           )}
         </div>

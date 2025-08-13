@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import MDEditor from '@uiw/react-md-editor';
 import { toast } from 'react-hot-toast';
-import { Upload, X, Eye, EyeOff, Save, ArrowLeft, BookOpen } from 'lucide-react';
+import { Upload, X, Eye, EyeOff, Save, ArrowLeft, BookOpen, Loader2 } from 'lucide-react';
 import { BlogPost, CreateBlogPostData } from '../types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -17,9 +17,9 @@ const postSchema = z.object({
   content: z.string().min(1, 'Content is required'),
   category: z.string().min(1, 'Category is required'),
   tags: z.array(z.string()).min(1, 'At least one tag is required'),
-  image: z.string().min(1, 'Image is required'),
-  published: z.boolean(),
-  featured: z.boolean(),
+  image: z.string().optional(),
+  published: z.boolean().optional(),
+  featured: z.boolean().optional(),
   seo: z.object({
     title: z.string().min(1, 'SEO title is required'),
     description: z.string().min(1, 'SEO description is required'),
@@ -27,7 +27,7 @@ const postSchema = z.object({
     canonical: z.string().min(1, 'Canonical URL is required'),
     ogType: z.string().min(1, 'OG type is required'),
     structuredData: z.any(),
-  }),
+  }).optional(),
 });
 
 interface BlogPostFormProps {
@@ -40,12 +40,13 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
   const [isEditing, setIsEditing] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(post?.image || '');
+  const [imagePreview, setImagePreview] = useState(post?.image ?? '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isValid },
     setValue,
     watch,
     reset,
@@ -58,8 +59,8 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
       category: post?.category || '',
       tags: post?.tags || [],
       image: post?.image || '',
-      published: post?.published || false,
-      featured: post?.featured || false,
+      published: post?.published ?? false,
+      featured: post?.featured ?? false,
       seo: {
         title: post?.seo?.title || '',
         description: post?.seo?.description || '',
@@ -69,6 +70,7 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
         structuredData: post?.seo?.structuredData || {},
       },
     },
+    mode: 'onChange',
   });
 
   const watchedContent = watch('content');
@@ -77,9 +79,23 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
   useEffect(() => {
     if (post) {
       setIsEditing(true);
-      setImagePreview(post.image);
+      setImagePreview(post.image || '');
+      // Auto-generate SEO fields if they're empty
+      if (!post.seo?.title && post.title) {
+        setValue('seo.title', post.title);
+      }
+      if (!post.seo?.description && post.excerpt) {
+        setValue('seo.description', post.excerpt);
+      }
+      if (!post.seo?.canonical) {
+        setValue('seo.canonical', `${window.location.origin}/blog/${post.slug}`);
+      }
+    } else {
+      // Set default values for new posts
+      setValue('seo.ogType', 'article');
+      setValue('seo.canonical', `${window.location.origin}/blog/new-post`);
     }
-  }, [post]);
+  }, [post, setValue]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -140,9 +156,64 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
   };
 
   const onSubmit = async (data: CreateBlogPostData) => {
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
     try {
-      const url = isEditing ? `/blog/api/${post?.slug}` : '/blog/api/posts';
-      const method = isEditing ? 'PUT' : 'POST';
+      // Auto-generate missing SEO fields
+      if (!data.seo?.title) {
+        if (!data.seo) {
+          data.seo = {
+            title: '',
+            description: '',
+            keywords: '',
+            canonical: '',
+            ogType: 'article',
+            structuredData: {}
+          };
+        }
+        data.seo.title = data.title;
+      }
+      if (!data.seo?.description) {
+        if (!data.seo) {
+          data.seo = {
+            title: '',
+            description: '',
+            keywords: '',
+            canonical: '',
+            ogType: 'article',
+            structuredData: {}
+          };
+        }
+        data.seo.description = data.excerpt;
+      }
+      if (!data.seo?.canonical) {
+        if (!data.seo) {
+          data.seo = {
+            title: '',
+            description: '',
+            keywords: '',
+            canonical: '',
+            ogType: 'article',
+            structuredData: {}
+          };
+        }
+        data.seo.canonical = `${window.location.origin}/blog/${data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
+      }
+
+      let url: string;
+      let method: string;
+
+      if (isEditing && post?.slug) {
+        // Update existing post using slug route
+        url = `/blog/api/${post.slug}`;
+        method = 'PUT';
+      } else {
+        // Create new post
+        url = '/blog/api/posts';
+        method = 'POST';
+      }
 
       const response = await fetch(url, {
         method,
@@ -153,7 +224,16 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
       });
 
       if (response.ok) {
+        const result = await response.json();
         toast.success(`Post ${isEditing ? 'updated' : 'created'} successfully`);
+        
+        // If creating a new post, update the form to editing mode
+        if (!isEditing && result.slug) {
+          setIsEditing(true);
+          // Update the URL to reflect the new slug
+          window.history.replaceState(null, '', `/admin/blog/edit/${result.slug}`);
+        }
+        
         onSave();
       } else {
         const error = await response.json();
@@ -162,12 +242,20 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
     } catch (error) {
       console.error('Error saving post:', error);
       toast.error(`Failed to ${isEditing ? 'update' : 'create'} post`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleCancel = () => {
     if (isSubmitting) return;
     onCancel();
+  };
+
+  const handlePublishToggle = () => {
+    const currentPublished = watch('published');
+    setValue('published', !currentPublished);
+    toast.success(`Post ${!currentPublished ? 'published' : 'unpublished'}`);
   };
 
   return (
@@ -178,7 +266,8 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
           <div className="flex items-center gap-4">
             <button
               onClick={handleCancel}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              disabled={isSubmitting}
+              className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -203,13 +292,31 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
               {showPreview ? 'Hide Preview' : 'Show Preview'}
             </button>
 
+            {/* Publish Toggle Button */}
+            <button
+              type="button"
+              onClick={handlePublishToggle}
+              className={`inline-flex items-center px-4 py-2 border shadow-sm text-sm font-medium rounded-md transition-colors duration-200 ${
+                watch('published')
+                  ? 'border-green-300 dark:border-green-600 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30'
+                  : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+            >
+              {watch('published') ? 'Published' : 'Draft'}
+            </button>
+
+            {/* Main Submit Button */}
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isValid}
               onClick={handleSubmit(onSubmit)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200"
+              className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200"
             >
-              <Save className="w-4 h-4 mr-2" />
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
               {isSubmitting ? 'Saving...' : (isEditing ? 'Update Post' : 'Publish Post')}
             </button>
           </div>

@@ -45,7 +45,7 @@ export default function BlogPost({ post }: { post: BlogPostType }) {
     author: post.author,
     authorId: post.author_id,
     date: post.date,
-    image: post.image,
+    image: post.image || undefined,
     category: post.category,
     tags: post.tags,
     slug: post.slug,
@@ -340,13 +340,13 @@ export default function BlogPost({ post }: { post: BlogPostType }) {
               </div>
 
               {/* Enhanced Rating Display */}
-              {post.rating > 0 && (
+              {(post.rating || 0) > 0 && (
                 <div className="flex items-center gap-4 mb-8 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-2xl border border-yellow-200/50 dark:border-yellow-700/50">
                   <div className="flex items-center gap-3">
-                    {renderStars(post.rating)}
+                    {renderStars(post.rating || 0)}
                     <div>
                       <p className="text-lg font-bold text-yellow-700 dark:text-yellow-300">
-                        {post.rating.toFixed(1)} out of 5
+                        {(post.rating || 0).toFixed(1)} out of 5
                       </p>
                       <p className="text-sm text-yellow-600 dark:text-yellow-400">
                         {post.total_ratings || 0} ratings

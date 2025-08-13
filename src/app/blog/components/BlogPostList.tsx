@@ -88,7 +88,7 @@ export default function BlogPostList({
                   <h3 className="text-lg font-semibold text-gray-900 truncate">
                     {post.title}
                   </h3>
-                  {getStatusBadge(post.published)}
+                  {getStatusBadge(post.published ?? false)}
                   {getFeaturedBadge(post.featured ?? false)}
                 </div>
 
@@ -99,7 +99,7 @@ export default function BlogPostList({
                 <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
-                    {formatDate(post.created_at)}
+                    {formatDate(post.created_at || new Date().toISOString())}
                   </div>
                   <div className="flex items-center gap-1">
                     <Tag className="w-4 h-4" />
@@ -109,10 +109,10 @@ export default function BlogPostList({
                     <Eye className="w-4 h-4" />
                     {post.views || 0} views
                   </div>
-                  {post.rating > 0 && (
+                  {(post.rating || 0) > 0 && (
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      {post.rating.toFixed(1)} ({post.total_ratings || 0})
+                      {(post.rating || 0).toFixed(1)} ({post.total_ratings || 0})
                     </div>
                   )}
                 </div>
@@ -143,13 +143,13 @@ export default function BlogPostList({
                 <button
                   onClick={() => onTogglePublish(post)}
                   className={`inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                    post.published
+                    (post.published ?? false)
                       ? 'text-red-700 bg-white hover:bg-red-50 border-red-300'
                       : 'text-green-700 bg-white hover:bg-green-50 border-green-300'
                   }`}
                 >
-                  {post.published ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-                  {post.published ? 'Unpublish' : 'Publish'}
+                  {(post.published ?? false) ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+                  {(post.published ?? false) ? 'Unpublish' : 'Publish'}
                 </button>
 
                 <button
@@ -194,8 +194,8 @@ export default function BlogPostList({
 
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>Last updated: {formatDate(post.updated_at)}</span>
-                <span>Read time: {post.readTime}</span>
+                <span>Last updated: {formatDate(post.updated_at || new Date().toISOString())}</span>
+                                        <span>Read time: {post.read_time}</span>
               </div>
             </div>
           </div>

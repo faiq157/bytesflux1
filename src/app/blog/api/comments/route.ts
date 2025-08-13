@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../utils/supabaseClient';
+import { supabase, supabaseAdmin } from '../../utils/supabaseClient';
 import { CreateCommentData } from '../../types';
 
 // GET /api/comments - Get comments for a specific post
@@ -100,7 +100,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { data: comment, error } = await supabase
+    // Use admin client to bypass RLS policies
+    const { data: comment, error } = await supabaseAdmin
       .from('blog_comments')
       .update({ approved })
       .eq('id', id)
@@ -138,7 +139,8 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { error } = await supabase
+    // Use admin client to bypass RLS policies
+    const { error } = await supabaseAdmin
       .from('blog_comments')
       .delete()
       .eq('id', id);

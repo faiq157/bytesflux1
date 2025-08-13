@@ -100,7 +100,7 @@ const AdminBlog: React.FC = () => {
 
       if (response.ok) {
         await fetchPosts(); // Refresh the posts list
-        toast.success(`Post ${post.published ? 'unpublished' : 'published'} successfully`);
+        toast.success(`Post ${(post.published ?? false) ? 'unpublished' : 'published'} successfully`);
       } else {
         const error = await response.json();
         toast.error(error.error || 'Failed to update post status');
@@ -351,7 +351,7 @@ const AdminBlog: React.FC = () => {
                         {post.title}
                       </h3>
                       <div className="flex items-center gap-2">
-                        {post.published ? (
+                        {(post.published ?? false) ? (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
                             <CheckCircle className="w-3 h-3 mr-1" />
                             Published
@@ -400,7 +400,7 @@ const AdminBlog: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <MessageSquare className="w-4 h-4" />
-                        <span>{post.comments || 0} {post.comments === 1 ? 'comment' : 'comments'}</span>
+                        <span>{post.comments || 0} {(post.comments || 0) === 1 ? 'comment' : 'comments'}</span>
                       </div>
                     </div>
                     
@@ -449,9 +449,9 @@ const AdminBlog: React.FC = () => {
                           ? 'text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'
                           : 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'
                       }`}
-                      title={post.published ? 'Unpublish post' : 'Publish post'}
+                      title={(post.published ?? false) ? 'Unpublish post' : 'Publish post'}
                     >
-                      {post.published ? <EyeOff className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                      {(post.published ?? false) ? <EyeOff className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                     </button>
                     
                     <button
