@@ -131,7 +131,7 @@ export default function RootLayout({
         {/* Google Analytics - Replace GA_MEASUREMENT_ID with your actual ID */}
         <script
           async
-          src={`https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID`}
+          src={`https://www.googletagmanager.com/gtag/js?id=G-VR7JMNQ5P4`}
         />
         <script
           dangerouslySetInnerHTML={{
@@ -139,7 +139,7 @@ export default function RootLayout({
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'GA_MEASUREMENT_ID');
+              gtag('config', 'G-VR7JMNQ5P4');
             `,
           }}
         />
