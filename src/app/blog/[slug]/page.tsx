@@ -12,6 +12,7 @@ import SEOHead from '@/app/components/SEOHead';
 import { BlogPost as BlogPostType, BlogComment } from '../types';
 import { generateBlogPostSchema, generateBreadcrumbSchema } from '../../lib/seo';
 import { useViewTracking } from '../../hooks/useViewTracking';
+import { getVideoEmbedUrl, getVideoPlatform } from '../utils/videoEmbed';
 
 export default function BlogPostPage() {
   const params = useParams();
@@ -336,6 +337,33 @@ export default function BlogPostPage() {
                     className="w-full h-auto object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                </div>
+              </div>
+            )}
+
+            {/* Embedded Video */}
+            {post.video_url && (
+              <div className="mb-12">
+                <div className="relative overflow-hidden rounded-2xl shadow-2xl bg-gray-100 dark:bg-gray-800">
+                  {/* Video Platform Badge */}
+                  <div className="absolute top-4 left-4 z-10">
+                    <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20">
+                      <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+                        {getVideoPlatform(post.video_url)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="aspect-video w-full">
+                    <iframe
+                      src={getVideoEmbedUrl(post.video_url)}
+                      title={`Video for ${post.title}`}
+                      className="w-full h-full rounded-2xl"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
                 </div>
               </div>
             )}

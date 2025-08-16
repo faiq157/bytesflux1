@@ -10,6 +10,7 @@ export interface BlogPost {
   category: string;
   tags: string[];
   image: string | null;
+  video_url: string | null;
   slug: string;
   path: string;
   featured: boolean | null;
@@ -98,6 +99,7 @@ export interface CreateBlogPostData {
   category: string;
   tags: string[];
   image?: string;
+  video_url?: string;
   published?: boolean;
   featured?: boolean;
   seo?: {

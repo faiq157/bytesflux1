@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     category VARCHAR(100) NOT NULL,
     tags TEXT[] DEFAULT '{}',
     image VARCHAR(500),
+    video_url VARCHAR(500),
     slug VARCHAR(255) UNIQUE NOT NULL,
     path VARCHAR(255) NOT NULL,
     featured BOOLEAN DEFAULT FALSE,

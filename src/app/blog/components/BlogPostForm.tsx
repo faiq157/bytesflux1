@@ -5,11 +5,12 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import MDEditor from '@uiw/react-md-editor';
+import { Upload, X, Eye, EyeOff, Save, ArrowLeft, BookOpen, Loader2, Video } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Upload, X, Eye, EyeOff, Save, ArrowLeft, BookOpen, Loader2 } from 'lucide-react';
 import { BlogPost, CreateBlogPostData } from '../types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { isValidVideoUrl } from '../utils/videoEmbed';
 
 const postSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -18,6 +19,7 @@ const postSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   tags: z.array(z.string()).min(1, 'At least one tag is required'),
   image: z.string().optional(),
+  video_url: z.string().optional(),
   published: z.boolean().optional(),
   featured: z.boolean().optional(),
   seo: z.object({
@@ -42,6 +44,7 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(post?.image ?? '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [videoUrlError, setVideoUrlError] = useState('');
 
   const {
     control,
@@ -59,6 +62,7 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
       category: post?.category || '',
       tags: post?.tags || [],
       image: post?.image || '',
+      video_url: post?.video_url || '',
       published: post?.published ?? false,
       featured: post?.featured ?? false,
       seo: {
@@ -75,6 +79,7 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
 
   const watchedContent = watch('content');
   const watchedTitle = watch('title');
+  const watchedVideoUrl = watch('video_url');
 
   useEffect(() => {
     if (post) {
@@ -96,6 +101,15 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
       setValue('seo.canonical', `${window.location.origin}/blog/new-post`);
     }
   }, [post, setValue]);
+
+  // Validate video URL when it changes
+  useEffect(() => {
+    if (watchedVideoUrl && !isValidVideoUrl(watchedVideoUrl)) {
+      setVideoUrlError('Please enter a valid video URL from YouTube, Vimeo, or other supported platforms');
+    } else {
+      setVideoUrlError('');
+    }
+  }, [watchedVideoUrl]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -157,6 +171,12 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
 
   const onSubmit = async (data: CreateBlogPostData) => {
     if (isSubmitting) return;
+    
+    // Validate video URL before submission
+    if (data.video_url && !isValidVideoUrl(data.video_url)) {
+      setVideoUrlError('Please enter a valid video URL from YouTube, Vimeo, or other supported platforms');
+      return;
+    }
     
     setIsSubmitting(true);
     
@@ -631,6 +651,40 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
                 </div>
               </div>
 
+              {/* Video URL Field */}
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-6">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Video URL</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <Video className="inline w-4 h-4 mr-2" />
+                      Video URL (YouTube, Vimeo, etc.)
+                    </label>
+                    <Controller
+                      name="video_url"
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          type="url"
+                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200 ${
+                            videoUrlError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                          }`}
+                          placeholder="https://www.youtube.com/watch?v=..."
+                        />
+                      )}
+                    />
+                    {videoUrlError && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{videoUrlError}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Supports YouTube, Vimeo, Dailymotion, Facebook, and Instagram videos
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* SEO Settings */}
               <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-6">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">SEO Settings</h3>
@@ -774,6 +828,15 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
                         alt="Preview"
                         className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
                       />
+                    </div>
+                  )}
+
+                  {watch('video_url') && (
+                    <div>
+                      <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 text-center">
+                        <Video className="w-8 h-8 mx-auto text-gray-500 dark:text-gray-400 mb-2" />
+                        <p className="text-xs text-gray-600 dark:text-gray-300">Video will be embedded</p>
+                      </div>
                     </div>
                   )}
                   

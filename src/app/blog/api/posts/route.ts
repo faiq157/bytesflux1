@@ -149,6 +149,7 @@ export async function POST(request: NextRequest) {
       category: body.category,
       tags: body.tags || [],
       image: body.image || null,
+      video_url: body.video_url || null,
       published: body.published || false,
       featured: body.featured || false,
       seo: body.seo || {},
