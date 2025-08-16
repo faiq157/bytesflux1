@@ -1,27 +1,21 @@
 import React from 'react';
+import Link from 'next/link';
 import { Calendar, Clock, Eye, MessageCircle, ArrowRight, Tag, Star, TrendingUp, BookOpen, MessageSquare } from 'lucide-react';
 import { BlogPost } from '../types';
 
 interface BlogCardProps {
   post: BlogPost;
-  onClick: (post: BlogPost) => void;
 }
 
-const BlogCard: React.FC<BlogCardProps> = ({ post, onClick }) => {
+const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
   return (
-    <article 
-      className="group relative bg-gradient-to-br from-white via-gray-50 to-blue-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-4 hover:scale-105 overflow-hidden cursor-pointer border border-gray-100/50 dark:border-gray-600/50"
-      onClick={() => onClick(post)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick(post);
-        }
-      }}
-      aria-label={`Read full article: ${post.title}`}
-    >
+    <Link href={`/blog/${post.slug}`} className="block">
+      <article 
+        className="group relative bg-gradient-to-br from-white via-gray-50 to-blue-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-4 hover:scale-105 overflow-hidden cursor-pointer border border-gray-100/50 dark:border-gray-600/50"
+        role="button"
+        tabIndex={0}
+        aria-label={`Read full article: ${post.title}`}
+      >
       {/* Animated Background Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
       
@@ -168,8 +162,9 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, onClick }) => {
         <div className="absolute top-32 right-16 w-1.5 h-1.5 bg-purple-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-all duration-1000 delay-200"></div>
         <div className="absolute bottom-32 left-20 w-1 h-1 bg-indigo-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-all duration-1000 delay-300"></div>
       </div>
-    </article>
-  );
-};
+        </article>
+      </Link>
+    );
+  };
 
 export default BlogCard;

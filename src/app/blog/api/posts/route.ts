@@ -6,6 +6,7 @@ import { CreateBlogPostData, UpdateBlogPostData } from '../../types';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const slug = searchParams.get('slug');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const category = searchParams.get('category');
@@ -13,6 +14,47 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const featured = searchParams.get('featured');
     const published = searchParams.get('published') || 'true';
+
+    // If slug is provided, fetch single post by slug
+    if (slug) {
+      const { data: post, error } = await supabase
+        .from('blog_posts')
+        .select(`
+          *,
+          comments:blog_comments(count)
+        `)
+        .eq('slug', slug)
+        .eq('published', true)
+        .single();
+
+      if (error) {
+        console.error('Error fetching post by slug:', error);
+        return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+      }
+
+      if (!post) {
+        return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+      }
+
+      // Process post to add comment count
+      const processedPost = {
+        ...post,
+        comments: post.comments?.[0]?.count || 0,
+        views: post.views || 0
+      };
+
+      return NextResponse.json({
+        posts: [processedPost],
+        pagination: {
+          currentPage: 1,
+          totalPages: 1,
+          totalPosts: 1,
+          postsPerPage: 1,
+          hasNextPage: false,
+          hasPrevPage: false
+        }
+      });
+    }
 
     let query = supabase
       .from('blog_posts')
@@ -92,11 +134,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate slug from title
-    const slug = body.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    // Generate slug from title using slugify utility
+    const { slugify } = await import('../../utils/slugify');
+    const slug = slugify(body.title);
 
     // Calculate read time (rough estimate: 200 words per minute)
     const wordCount = body.content.split(/\s+/).length;
@@ -169,10 +209,8 @@ export async function PUT(request: NextRequest) {
 
     // Only update slug and path if title is provided
     if (body.title) {
-      const slug = body.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
+      const { slugify } = await import('../../utils/slugify');
+      const slug = slugify(body.title);
       updateData.slug = slug;
       updateData.path = `/blog/${slug}`;
     }

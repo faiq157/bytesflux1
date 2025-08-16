@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     default: "BytesFlux - Professional Web Development & Digital Solutions in Pakistan",
     template: "%s | BytesFlux - Digital Solutions"
   },
-  description: "BytesFlux is Pakistan's leading web development, mobile app development, graphic design, and SEO services company. We specialize in custom digital solutions, e-commerce development, and software development. Get expert IT services at competitive prices.",
+  description: "BytesFlux is Pakistan's premier digital solutions company, delivering comprehensive web development, mobile app development, graphic design, and SEO services since 2019. Our expert team specializes in creating custom digital solutions, e-commerce platforms, and enterprise software that drive business growth and digital transformation. We leverage cutting-edge technologies including React, Next.js, Node.js, and modern design frameworks to build scalable, high-performance solutions tailored to your specific business requirements. From responsive websites and mobile applications to brand identity design and search engine optimization, our comprehensive approach ensures your entire digital presence is cohesive, effective, and optimized for success. We serve businesses of all sizes across Pakistan and internationally, offering competitive pricing without compromising on quality, innovation, or customer satisfaction. Trust BytesFlux to be your digital transformation partner, helping you establish market leadership and achieve sustainable growth in the competitive online marketplace.",
   keywords: [
     "bytesflux",
     "BytesFlux",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://bytesflux.com',
     title: 'BytesFlux - Professional Web Development & Digital Solutions in Pakistan',
-    description: 'BytesFlux is Pakistan\'s leading web development, mobile app development, graphic design, and SEO services company. We specialize in custom digital solutions, e-commerce development, and software development.',
+    description: 'BytesFlux is Pakistan\'s premier digital solutions company, delivering comprehensive web development, mobile app development, graphic design, and SEO services since 2019. Our expert team specializes in creating custom digital solutions, e-commerce platforms, and enterprise software that drive business growth and digital transformation.',
     siteName: 'BytesFlux',
     images: [
       {
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'BytesFlux - Professional Web Development & Digital Solutions in Pakistan',
-    description: 'BytesFlux is Pakistan\'s leading web development, mobile app development, graphic design, and SEO services company. We specialize in custom digital solutions, e-commerce development, and software development.',
+    description: 'BytesFlux is Pakistan\'s premier digital solutions company, delivering comprehensive web development, mobile app development, graphic design, and SEO services since 2019. Our expert team specializes in creating custom digital solutions, e-commerce platforms, and enterprise software that drive business growth and digital transformation.',
     images: ['/og-image.jpg'],
     creator: '@bytesflux',
     site: '@bytesflux',

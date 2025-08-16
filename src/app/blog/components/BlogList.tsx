@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Filter, Calendar, TrendingUp, Sparkles, ArrowRight, Clock, Eye, MessageCircle } from 'lucide-react';
 import BlogCard from './BlogCard';
-import BlogPost from './BlogPost';
 import { usePosts } from '@/app/hooks/usePosts';
 import { useCategories } from '@/app/hooks/useCategories';
 import { BlogFilter } from './BlogFilter';
@@ -10,7 +9,6 @@ import { generateBlogListSchema, generateOrganizationSchema } from '../../lib/se
 
 const BlogList: React.FC = () => {
   const { posts, loading: postsLoading, error: postsError } = usePosts();
-  const [selectedPost, setSelectedPost] = useState<BlogPostType | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [sortBy, setSortBy] = useState('latest');
@@ -120,28 +118,8 @@ const BlogList: React.FC = () => {
       />
       
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
-      {/* Show individual blog post if selected */}
-      {selectedPost ? (
-        <div className="relative">
-          {/* Back button */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-10">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-              <button
-                onClick={() => setSelectedPost(null)}
-                className="inline-flex items-center px-6 py-3 border border-gray-300/50 dark:border-gray-600/50 shadow-sm text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white/90 dark:bg-gray-800/90 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 backdrop-blur-sm"
-              >
-                ← Back to Blog
-              </button>
-            </div>
-          </div>
-          
-          {/* Render the full blog post */}
-          <BlogPost post={selectedPost} />
-        </div>
-      ) : (
-        <>
-          {/* Hero Section */}
-          <div className="relative overflow-hidden">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-purple-600/10 to-indigo-600/10"></div>
             <div
@@ -286,7 +264,6 @@ const BlogList: React.FC = () => {
                   <BlogCard
                     key={post.id}
                     post={post}
-                    onClick={setSelectedPost}
                   />
                 ))}
               </div>
@@ -354,11 +331,9 @@ const BlogList: React.FC = () => {
               </div>
             </div>
           )}
-        </>
-      )}
-    </div>
-    </>
-  );
-};
+        </div>
+      </>
+    );
+  };
 
 export default BlogList;

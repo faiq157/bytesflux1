@@ -51,7 +51,7 @@ const FAQPage = () => {
     <>
       <SEOHead
         title="Frequently Asked Questions - BytesFlux Digital Solutions"
-        description="Get answers to common questions about BytesFlux services including web development, mobile app development, graphic design, and SEO services in Pakistan. Learn about our pricing, process, and expertise."
+        description="Find comprehensive answers to frequently asked questions about BytesFlux's professional digital services in Pakistan. Our detailed FAQ section covers everything you need to know about web development, mobile app development, graphic design, and SEO services. Learn about our competitive pricing structure, streamlined project processes, team expertise, and commitment to delivering exceptional results. Whether you're curious about project timelines, technology stacks, maintenance support, or how to get started, our FAQ provides clear, informative responses to help you make informed decisions about your digital transformation journey. We address common concerns about quality assurance, communication protocols, and post-launch support to ensure you have complete confidence in choosing BytesFlux as your digital solutions partner."
         keywords="BytesFlux FAQ, web development questions, mobile app development Pakistan, graphic design services, SEO services Pakistan, digital solutions FAQ"
         canonical="/faq"
         structuredData={{

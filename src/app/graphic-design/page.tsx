@@ -49,7 +49,7 @@ const page = () => {
     <>
       <SEOHead
         title="Affordable Graphic Design Services - Logo Design & Brand Identity | Bytesflux"
-        description="Professional graphic design services at affordable prices. Logo design, brand identity, marketing materials, and digital graphics. Quality design without breaking the bank."
+        description="Elevate your brand with BytesFlux's professional graphic design services in Pakistan, offering exceptional quality at affordable prices. Our creative team specializes in comprehensive brand identity design, including memorable logos, cohesive color schemes, typography systems, and complete style guides that establish your unique market presence. We deliver stunning marketing materials such as brochures, flyers, banners, and promotional content that effectively communicate your message and drive conversions. Our digital graphics expertise covers social media assets, website visuals, and advertising materials optimized for various platforms. We use industry-standard design tools and follow current design trends while maintaining timeless appeal. Quality design doesn't have to break the bank - we provide professional results that help your business stand out in the competitive marketplace."
         keywords="affordable graphic design services, logo design, brand identity, marketing materials"
         canonical="https://bytesflux.com/graphic-design"
         structuredData={{

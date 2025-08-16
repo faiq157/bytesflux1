@@ -4,30 +4,14 @@ Allow: /
 # Sitemap
 Sitemap: https://bytesflux.com/sitemap.xml
 
-# Disallow admin areas
+# Disallow admin and private areas
 Disallow: /admin/
+Disallow: /BlogEditorDashboard/
 Disallow: /api/
-Disallow: /_next/
-Disallow: /node_modules/
 
-# Allow important pages
-Allow: /
-Allow: /services
-Allow: /web-development
-Allow: /mobile-app-development
-Allow: /graphic-design
-Allow: /seo-services
-Allow: /blog
-Allow: /about
-Allow: /contact
-Allow: /BlogEditorDashboard
-Allow: /faq
+# Allow blog posts
+Allow: /blog/
+Allow: /blog/*/
 
-# Crawl delay
-Crawl-delay: 1
-
-# Additional directives for better SEO
-Allow: /favicon.ico
-Allow: /manifest.json
-Allow: /robots.txt
-Allow: /sitemap.xml 
+# Crawl delay (optional)
+Crawl-delay: 1 

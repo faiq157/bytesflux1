@@ -45,7 +45,7 @@ const ContactPage = () => {
     <>
       <SEOHead
         title="Contact Us - Get Free Quote for Web Development & Digital Services | BytesFlux"
-        description="Contact BytesFlux for professional web development, mobile apps, graphic design, and SEO services in Pakistan. Get free consultation and quotes for your digital projects."
+        description="Ready to transform your business with professional digital solutions? Contact BytesFlux today for expert web development, mobile app development, graphic design, and SEO services in Pakistan. Our dedicated team is here to provide free consultation, detailed project quotes, and personalized recommendations for your digital transformation journey. Whether you need a new website, mobile application, brand redesign, or search engine optimization, we offer comprehensive support from initial concept to final deployment. Reach out through our convenient contact form, direct phone calls, or email communication, and we'll respond within 24 hours. Our experienced consultants will discuss your project requirements, budget considerations, and timeline expectations to ensure we deliver solutions that exceed your expectations and drive measurable business results."
         keywords="contact BytesFlux, web development quote, mobile app development Pakistan, graphic design services, SEO consultation, digital services contact"
         canonical="/contact"
         structuredData={{

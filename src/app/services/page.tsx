@@ -54,7 +54,7 @@ const ServicesPage = () => {
     <>
       <SEOHead
         title="Our Services - Web Development, Mobile Apps, Graphic Design & SEO | BytesFlux"
-        description="Comprehensive digital services including web development, mobile app development, graphic design, and SEO services in Pakistan. Expert solutions for your business growth."
+        description="Explore BytesFlux's comprehensive suite of professional digital services designed to accelerate your business growth. Our expert team delivers cutting-edge web development solutions, including responsive websites, e-commerce platforms, and custom web applications built with modern technologies. We specialize in native mobile app development for iOS and Android, creating intuitive user experiences that engage your customers. Our creative graphic design services encompass brand identity, marketing materials, UI/UX design, and digital assets that strengthen your market presence. Additionally, our SEO services optimize your online visibility through strategic keyword optimization, content marketing, and technical SEO improvements. Every service is delivered with attention to detail, competitive pricing, and ongoing support to ensure your digital success in Pakistan's competitive market landscape."
         keywords="web development services, mobile app development, graphic design services, SEO services, digital solutions Pakistan, IT services, software development"
         canonical="/services"
         structuredData={{

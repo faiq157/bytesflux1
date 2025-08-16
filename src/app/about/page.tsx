@@ -62,7 +62,7 @@ const AboutPage = () => {
     <>
       <SEOHead
         title="About Us - BytesFlux Team & Company Story | Digital Solutions Pakistan"
-        description="Learn about BytesFlux - a leading digital solutions company in Pakistan. Our expert team delivers web development, mobile apps, graphic design, and SEO services with 5+ years of experience."
+        description="Discover the story behind BytesFlux, Pakistan's trusted digital solutions partner since 2019. Our passionate team of digital innovators combines technical expertise with creative vision to deliver exceptional web development, mobile app development, graphic design, and SEO services. With over 5 years of experience serving businesses across Pakistan, we've built a reputation for quality, innovation, and customer satisfaction. Our diverse team includes skilled developers, creative designers, SEO specialists, and project managers who work collaboratively to transform your business ideas into powerful digital solutions. We believe in building long-term partnerships with our clients, understanding their unique challenges, and providing tailored solutions that drive measurable results. From startups to established enterprises, we've helped hundreds of businesses establish their digital presence and achieve sustainable growth in the competitive online marketplace."
         keywords="about BytesFlux, digital solutions company Pakistan, web development team, mobile app developers, graphic designers, SEO experts, IT company Pakistan"
         canonical="/about"
         structuredData={{
