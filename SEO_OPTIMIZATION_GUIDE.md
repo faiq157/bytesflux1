@@ -121,7 +121,7 @@ This document outlines the comprehensive SEO optimizations implemented for the B
 ### 4. Link Building
 - **Guest Posts**: Write for relevant industry blogs
 - **Partnerships**: Collaborate with complementary businesses
-- **Social Media**: Active presence on LinkedIn, Twitter, and Facebook
+- **Social Media**: Active presence on Twitter and Facebook
 - **Industry Directories**: List in relevant business directories
 
 ## 📈 SEO Checklist

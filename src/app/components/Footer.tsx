@@ -1,12 +1,12 @@
 "use client";
 import React from 'react';
 import Image from 'next/image';
-import { Zap, Github, Twitter, Linkedin, Instagram, Mail } from 'lucide-react';
+import { Zap, Github, Twitter, Instagram, Mail } from 'lucide-react';
 import Link from 'next/link';
 
 const Footer = () => {
   const socialLinks = [
-    { icon: Linkedin, href: 'https://www.linkedin.com/company/bytesflux/?viewAsMember=true', label: 'LinkedIn' },
+  
     { icon: Instagram, href: 'https://www.instagram.com/bytesflux', label: 'Instagram' },
     { icon: Mail, href: 'mailto:hello@bytesflux.com', label: 'Email' }
   ];

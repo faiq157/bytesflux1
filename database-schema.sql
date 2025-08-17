@@ -275,6 +275,59 @@ FROM blog_posts p
 LEFT JOIN blog_comments c ON p.id = c.post_id AND c.approved = true
 GROUP BY p.id, p.title, p.slug, p.views, p.rating, p.total_ratings, p.created_at, p.updated_at;
 
+-- Create social_media_settings table for multiple platforms
+CREATE TABLE IF NOT EXISTS social_media_settings (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    platform VARCHAR(50) NOT NULL UNIQUE,
+    enabled BOOLEAN DEFAULT FALSE,
+    display_name VARCHAR(100) NOT NULL,
+    config JSONB NOT NULL DEFAULT '{}',
+    auto_post_new BOOLEAN DEFAULT TRUE,
+    auto_post_updates BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert default Mastodon configuration
+INSERT INTO social_media_settings (platform, enabled, display_name, config, auto_post_new, auto_post_updates) 
+VALUES (
+    'mastodon', 
+    TRUE, 
+    'Mastodon', 
+    '{"instance": "https://mastodon.social", "access_token": "", "include_hashtags": true, "post_format": "New blog post: {title}\n\n{excerpt}\n\nRead more: {url}\n\n{hashtags}"}',
+    TRUE, 
+    TRUE
+) ON CONFLICT (platform) DO NOTHING;
+
+
+
+-- Create index for social_media_settings
+CREATE INDEX IF NOT EXISTS idx_social_media_settings_enabled ON social_media_settings(enabled);
+CREATE INDEX IF NOT EXISTS idx_social_media_settings_platform ON social_media_settings(platform);
+
+-- Legacy mastodon_settings table (for backward compatibility)
+CREATE TABLE IF NOT EXISTS mastodon_settings (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    enabled BOOLEAN DEFAULT FALSE,
+    instance VARCHAR(500) NOT NULL DEFAULT 'https://mastodon.social',
+    access_token TEXT NOT NULL,
+    auto_post_new BOOLEAN DEFAULT TRUE,
+    auto_post_updates BOOLEAN DEFAULT FALSE,
+    include_hashtags BOOLEAN DEFAULT TRUE,
+    post_format TEXT DEFAULT 'New blog post: {title}
+
+{excerpt}
+
+Read more: {url}
+
+{hashtags}',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create index for mastodon_settings
+CREATE INDEX IF NOT EXISTS idx_mastodon_settings_enabled ON mastodon_settings(enabled);
+
 -- Create a function to get related posts
 CREATE OR REPLACE FUNCTION get_related_posts(
     current_post_id UUID,

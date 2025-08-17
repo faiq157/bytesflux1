@@ -1,12 +1,14 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Eye, Search, Filter, Calendar, User, Save, X, Upload, Image as ImageIcon, RefreshCw, EyeOff, CheckCircle, Clock, FileText, Star, MessageSquare } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Search, Filter, Calendar, User, Save, X, Upload, Image as ImageIcon, RefreshCw, EyeOff, CheckCircle, Clock, FileText, Star, Share2, MessageSquare } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { BlogPost } from '../types';
 import BlogPostForm from './BlogPostForm';
 import BlogPostList from './BlogPostList';
 import CommentManagement from './CommentManagement';
 import RealTimeViewCounter from './RealTimeViewCounter';
+import MastodonConfig from './MastodonConfig';
+import SocialMediaSettings from './SocialMediaSettings';
 
 const AdminBlog: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -16,7 +18,7 @@ const AdminBlog: React.FC = () => {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all');
-  const [currentView, setCurrentView] = useState<'posts' | 'form' | 'comments'>('posts');
+  const [currentView, setCurrentView] = useState<'posts' | 'form' | 'comments' | 'mastodon' | 'social-media'>('posts');
 
   // Fetch posts from database
   const fetchPosts = async () => {
@@ -100,7 +102,58 @@ const AdminBlog: React.FC = () => {
 
       if (response.ok) {
         await fetchPosts(); // Refresh the posts list
-        toast.success(`Post ${(post.published ?? false) ? 'unpublished' : 'published'} successfully`);
+        const newPublishedStatus = !post.published;
+        toast.success(`Post ${newPublishedStatus ? 'published' : 'unpublished'} successfully`);
+        
+        // If publishing, check if social media platforms are enabled and post if so
+        if (newPublishedStatus) {
+          try {
+            // Check social media settings
+            const settingsResponse = await fetch('/blog/api/social-media/settings');
+            if (settingsResponse.ok) {
+              const settingsData = await settingsResponse.json();
+              
+              // Post to Mastodon if enabled
+              const mastodonSettings = settingsData.settings.find((s: any) => s.platform === 'mastodon');
+              if (mastodonSettings?.enabled && mastodonSettings?.auto_post_new) {
+                try {
+                  const mastodonResponse = await fetch('/blog/api/mastodon/post', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      instance: process.env.NEXT_PUBLIC_MASTODON_INSTANCE || 'https://mastodon.social',
+                      accessToken: process.env.NEXT_PUBLIC_MASTODON_ACCESS_TOKEN || '',
+                      status: `New blog post: ${post.title}
+
+${post.excerpt}
+
+Read more: ${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/blog/${post.slug}
+
+#${post.category.replace(/\s+/g, '')} #BytesFlux #TechBlog`,
+                    }),
+                  });
+
+                  if (mastodonResponse.ok) {
+                    const mastodonResult = await mastodonResponse.json();
+                    toast.success('Post also shared on Mastodon! 🚀');
+                    console.log('Mastodon post successful:', mastodonResult);
+                  } else {
+                    const error = await mastodonResponse.json();
+                    console.log('Mastodon post failed:', error);
+                  }
+                } catch (error) {
+                  console.error('Error posting to Mastodon:', error);
+                }
+              }
+              
+
+            }
+          } catch (error) {
+            console.error('Error checking social media settings:', error);
+          }
+        }
       } else {
         const error = await response.json();
         toast.error(error.error || 'Failed to update post status');
@@ -110,6 +163,8 @@ const AdminBlog: React.FC = () => {
       toast.error('Failed to update post status');
     }
   };
+
+
 
   // Filter posts based on search and status
   const filteredPosts = posts.filter(post => {
@@ -151,6 +206,8 @@ const AdminBlog: React.FC = () => {
     );
   }
 
+
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* Header */}
@@ -166,13 +223,13 @@ const AdminBlog: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {/* <button
-                onClick={() => setCurrentView('comments')}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 flex items-center space-x-2"
+              <button
+                onClick={() => setCurrentView('mastodon')}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 flex items-center space-x-2"
               >
-                <Eye className="h-4 w-4" />
-                <span>Comments</span>
-              </button> */}
+                <Share2 className="h-4 w-4" />
+                <span>Mastodon</span>
+              </button>
               <button
                 onClick={() => setCurrentView('form')}
                 className="bg-gradient-to-r from-blue-600 to-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 flex items-center space-x-2"
@@ -260,44 +317,89 @@ const AdminBlog: React.FC = () => {
             </div>
           </div>
 
-          {/* Search and Filters */}
-          <div className="mt-6 flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search posts by title, excerpt, or content..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              />
+          {/* Search and Filters - Only show in posts view */}
+          {currentView === 'posts' && (
+            <div className="mt-6 flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search posts by title, excerpt, or content..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Filter className="h-5 w-5 text-gray-400" />
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as any)}
+                  className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="all">All Posts</option>
+                  <option value="published">Published</option>
+                  <option value="draft">Drafts</option>
+                </select>
+                <button
+                  onClick={fetchPosts}
+                  disabled={loading}
+                  className="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 disabled:opacity-50"
+                >
+                  <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Filter className="h-5 w-5 text-gray-400" />
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as any)}
-                className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              >
-                <option value="all">All Posts</option>
-                <option value="published">Published</option>
-                <option value="draft">Drafts</option>
-              </select>
-              <button
-                onClick={fetchPosts}
-                disabled={loading}
-                className="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 disabled:opacity-50"
-              >
-                <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
+        {/* Navigation Tabs */}
+        <div className="mb-8 flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setCurrentView('posts')}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 ${
+              currentView === 'posts'
+                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-b-2 border-blue-600'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+            }`}
+          >
+            Posts
+          </button>
+          <button
+            onClick={() => setCurrentView('mastodon')}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 ${
+              currentView === 'mastodon'
+                ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-b-2 border-purple-600'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+            }`}
+          >
+            Mastodon
+          </button>
+
+          <button
+            onClick={() => setCurrentView('social-media')}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 ${
+              currentView === 'social-media'
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-b-2 border-green-600'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+            }`}
+          >
+            Social Media
+          </button>
+        </div>
+
+        {/* Content based on current view */}
+        {currentView === 'mastodon' ? (
+          <MastodonConfig />
+
+        ) : currentView === 'social-media' ? (
+          <SocialMediaSettings />
+        ) : (
+          <>
+            {loading ? (
           <div className="text-center py-20">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Loading Posts</h3>
@@ -454,6 +556,8 @@ const AdminBlog: React.FC = () => {
                       {(post.published ?? false) ? <EyeOff className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                     </button>
                     
+
+                    
                     <button
                       onClick={() => handleDeletePost(post.id)}
                       className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
@@ -466,6 +570,8 @@ const AdminBlog: React.FC = () => {
               </div>
             ))}
           </div>
+        )}
+          </>
         )}
       </div>
     </div>

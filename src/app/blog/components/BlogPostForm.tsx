@@ -5,12 +5,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import MDEditor from '@uiw/react-md-editor';
-import { Upload, X, Eye, EyeOff, Save, ArrowLeft, BookOpen, Loader2, Video } from 'lucide-react';
+import { Upload, X, Eye, EyeOff, Save, ArrowLeft, BookOpen, Loader2, Video, MessageSquare } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { BlogPost, CreateBlogPostData } from '../types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { isValidVideoUrl } from '../utils/videoEmbed';
+
 
 const postSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -247,6 +248,56 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
         const result = await response.json();
         toast.success(`Post ${isEditing ? 'updated' : 'created'} successfully`);
         
+        // Check if social media platforms are enabled and post if so
+        if (data.published) {
+          try {
+            // Check social media settings
+            const settingsResponse = await fetch('/blog/api/social-media/settings');
+            if (settingsResponse.ok) {
+              const settingsData = await settingsResponse.json();
+              
+              // Post to Mastodon if enabled
+              const mastodonSettings = settingsData.settings.find((s: any) => s.platform === 'mastodon');
+              if (mastodonSettings?.enabled && mastodonSettings?.auto_post_new) {
+                try {
+                  const mastodonResponse = await fetch('/blog/api/mastodon/post', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      instance: process.env.NEXT_PUBLIC_MASTODON_INSTANCE || 'https://mastodon.social',
+                      accessToken: process.env.NEXT_PUBLIC_MASTODON_ACCESS_TOKEN || '',
+                      status: `New blog post: ${data.title}
+
+${data.excerpt || data.content.substring(0, 200) + '...'}
+
+Read more: ${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/blog/${result.slug || post?.slug || ''}
+
+#${data.category.replace(/\s+/g, '')} #BytesFlux #TechBlog`,
+                    }),
+                  });
+
+                  if (mastodonResponse.ok) {
+                    const mastodonResult = await mastodonResponse.json();
+                    toast.success('Post also shared on Mastodon! 🚀');
+                    console.log('Mastodon post successful:', mastodonResult);
+                  } else {
+                    const error = await mastodonResponse.json();
+                    console.log('Mastodon post failed:', error);
+                  }
+                } catch (error) {
+                  console.error('Error posting to Mastodon:', error);
+                }
+              }
+              
+
+            }
+          } catch (error) {
+            console.error('Error checking social media settings:', error);
+          }
+        }
+        
         // If creating a new post, update the form to editing mode
         if (!isEditing && result.slug) {
           setIsEditing(true);
@@ -276,6 +327,44 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
     const currentPublished = watch('published');
     setValue('published', !currentPublished);
     toast.success(`Post ${!currentPublished ? 'published' : 'unpublished'}`);
+  };
+
+  const handleShareToMastodon = async () => {
+    try {
+      const currentData = watch();
+      
+      // Call Mastodon API directly
+      const mastodonResponse = await fetch('/blog/api/mastodon/post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          instance: process.env.NEXT_PUBLIC_MASTODON_INSTANCE || 'https://mastodon.social',
+          accessToken: process.env.NEXT_PUBLIC_MASTODON_ACCESS_TOKEN || '',
+          status: `New blog post: ${currentData.title}
+
+${currentData.excerpt || currentData.content.substring(0, 200) + '...'}
+
+Read more: ${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/blog/${post?.slug || ''}
+
+#${currentData.category.replace(/\s+/g, '')} #BytesFlux #TechBlog`,
+        }),
+      });
+
+      if (mastodonResponse.ok) {
+        const mastodonResult = await mastodonResponse.json();
+        toast.success('Post shared on Mastodon! 🚀');
+        console.log('Mastodon post successful:', mastodonResult);
+      } else {
+        const error = await mastodonResponse.json();
+        console.log('Mastodon post failed:', error);
+        toast.error('Failed to share on Mastodon');
+      }
+    } catch (error) {
+      console.error('Error sharing to Mastodon:', error);
+      toast.error('Failed to share on Mastodon');
+    }
   };
 
   return (
@@ -324,6 +413,19 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
             >
               {watch('published') ? 'Published' : 'Draft'}
             </button>
+
+            {/* Share to Mastodon Button */}
+            {watch('published') && (
+              <button
+                type="button"
+                onClick={handleShareToMastodon}
+                disabled={isSubmitting}
+                className="inline-flex items-center px-4 py-2 border border-purple-300 dark:border-purple-600 shadow-sm text-sm font-medium rounded-md text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200 disabled:opacity-50"
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Share to Mastodon
+              </button>
+            )}
 
             {/* Main Submit Button */}
             <button

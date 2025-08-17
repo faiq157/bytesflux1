@@ -192,9 +192,7 @@ export default function BlogPostPage() {
       case 'facebook':
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
         break;
-      case 'linkedin':
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-        break;
+
       default:
         return;
     }
@@ -464,13 +462,7 @@ export default function BlogPostPage() {
                   <Share2 className="h-4 w-4" />
                   Facebook
                 </button>
-                <button
-                  onClick={() => handleShare('linkedin')}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-xl hover:bg-blue-800 transition-colors duration-200"
-                >
-                  <Share2 className="h-4 w-4" />
-                  LinkedIn
-                </button>
+
               </div>
             </div>
 

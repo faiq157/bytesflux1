@@ -90,7 +90,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
             "sameAs": [
               "https://facebook.com/bytesflux",
               "https://twitter.com/bytesflux",
-              "https://linkedin.com/company/bytesflux"
+        
             ]
           }),
         }}

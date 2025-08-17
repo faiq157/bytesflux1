@@ -112,7 +112,7 @@ export const generateOrganizationSchema = (): any => {
     "logo": "https://bytesflux.com/logo.png",
     "sameAs": [
       "https://twitter.com/bytesflux",
-      "https://linkedin.com/company/bytesflux",
+  
       "https://facebook.com/bytesflux"
     ],
     "contactPoint": {

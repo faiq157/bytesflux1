@@ -46,7 +46,7 @@ export interface BlogAuthor {
   avatar: string;
   social: {
     twitter?: string;
-    linkedin?: string;
+  
     github?: string;
   };
 }

@@ -1,16 +1,14 @@
 
 "use client";
 import React from 'react';
-import { User, GraduationCap, Briefcase, Linkedin, Code, Zap, Award, Target, Lightbulb, Users } from 'lucide-react';
+import { User, GraduationCap, Briefcase, Code, Zap, Award, Target, Lightbulb, Users, Icon, BotIcon, History } from 'lucide-react';
 import SVGLightning from './SVGLightning';
 
 const CEOStory = () => {
   const journeySteps = [
     {
       year: '2023',
-      title: 'LinkedIn Journey Begins',
-      description: 'Started building a strong LinkedIn profile to establish professional presence in the tech industry.',
-      icon: Linkedin,
+      
       accent: ''
     },
     {
@@ -162,7 +160,7 @@ const CEOStory = () => {
                     {/* Timeline Node */}
                     <div className="relative z-10">
                       <div className="bg-gradient-to-r from-blue-600 to-teal-600 p-3 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300">
-                        <IconComponent className="h-6 w-6 text-white" />
+                        <History className="h-6 w-6 text-white" />
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-teal-600 rounded-full animate-ping opacity-0 hover:opacity-75 transition-opacity duration-300"></div>
                     </div>
