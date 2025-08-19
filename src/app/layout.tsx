@@ -134,6 +134,12 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
         <link rel="shortcut icon" href="/favicon.ico" />
         
+        {/* Google Brand Logo Meta Tags */}
+        <meta name="brand" content="BytesFlux" />
+        <meta name="application-name" content="BytesFlux" />
+        <meta name="msapplication-TileImage" content="/logo.png" />
+        <meta name="msapplication-TileColor" content="#2563eb" />
+        
         {/* Google Analytics */}
         <script
           async
@@ -158,8 +164,15 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "BytesFlux",
+              "alternateName": "BytesFlux Digital Solutions",
               "url": "https://bytesflux.com",
-              "logo": "https://bytesflux.com/logo.png",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://bytesflux.com/logo.png",
+                "width": 512,
+                "height": 512,
+                "caption": "BytesFlux Logo"
+              },
               "image": "https://bytesflux.com/logo.png",
               "description": "Professional web development, mobile app development, graphic design, and SEO services in Pakistan",
               "address": {
@@ -170,6 +183,66 @@ export default function RootLayout({
                 "@type": "ContactPoint",
                 "contactType": "customer service",
                 "availableLanguage": "English"
+              },
+              "sameAs": [
+                "https://facebook.com/bytesflux",
+                "https://twitter.com/bytesflux",
+                "https://instagram.com/bytesflux"
+              ]
+            }),
+          }}
+        />
+        
+        {/* Brand Logo Schema for Google Search Results */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Brand",
+              "name": "BytesFlux",
+              "description": "Professional web development and digital solutions company in Pakistan",
+              "url": "https://bytesflux.com",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://bytesflux.com/logo.png",
+                "width": 512,
+                "height": 512
+              },
+              "image": "https://bytesflux.com/logo.png",
+              "brand": "BytesFlux",
+              "foundingDate": "2019",
+              "areaServed": "Pakistan",
+              "serviceType": "Web Development, Mobile App Development, Graphic Design, SEO Services"
+            }),
+          }}
+        />
+        
+        {/* Google Knowledge Graph Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "BytesFlux",
+              "alternateName": "BytesFlux Digital Solutions",
+              "url": "https://bytesflux.com",
+              "description": "Pakistan's premier digital solutions company offering web development, mobile app development, graphic design, and SEO services",
+              "publisher": {
+                "@type": "Organization",
+                "name": "BytesFlux",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://bytesflux.com/logo.png",
+                  "width": 512,
+                  "height": 512
+                }
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://bytesflux.com/search?q={search_term_string}",
+                "query-input": "required name=search_term_string"
               }
             }),
           }}
