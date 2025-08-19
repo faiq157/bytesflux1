@@ -5,6 +5,7 @@ import Services from "./components/Services";
 import About from "./components/About";
 import Team from "./components/Team";
 import CEOStory from "./components/CEOStory";
+import ClientTestimonials from "./components/ClientTestimonials";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import SEOHead from "./components/SEOHead";
@@ -94,6 +95,7 @@ export default function Home() {
           <About />
           <Team />
           <CEOStory />
+          <ClientTestimonials />
           <Contact />
         </main>
         <Footer />
