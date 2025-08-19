@@ -128,10 +128,10 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="icon" type="image/png" href="/favicon.png" />
         
-        {/* Google Analytics - Replace GA_MEASUREMENT_ID with your actual ID */}
+        {/* Google Analytics */}
         <script
           async
-          src={`https://www.googletagmanager.com/gtag/js?id=G-VR7JMNQ5P4`}
+          src="https://www.googletagmanager.com/gtag/js?id=G-H5WX4ZZV1H"
         />
         <script
           dangerouslySetInnerHTML={{
@@ -139,7 +139,7 @@ export default function RootLayout({
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-VR7JMNQ5P4');
+              gtag('config', 'G-H5WX4ZZV1H');
             `,
           }}
         />
