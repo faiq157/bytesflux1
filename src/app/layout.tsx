@@ -94,9 +94,13 @@ export const metadata: Metadata = {
     google: 'your-google-verification-code',
     yandex: 'your-yandex-verification-code',
     yahoo: 'your-yahoo-verification-code',
+    other: {
+      'google-site-verification': 'your-google-verification-code',
+    },
   },
   icons: {
     icon: [
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/favicon.png', sizes: 'any', type: 'image/png' }
@@ -104,6 +108,7 @@ export const metadata: Metadata = {
     apple: [
       { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' }
     ],
+    shortcut: '/favicon.ico',
     other: [
       { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' }
     ]
@@ -123,10 +128,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="BytesFlux" />
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         
         {/* Google Analytics */}
         <script
@@ -141,6 +147,31 @@ export default function RootLayout({
               gtag('js', new Date());
               gtag('config', 'G-H5WX4ZZV1H');
             `,
+          }}
+        />
+        
+        {/* Organization Logo Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "BytesFlux",
+              "url": "https://bytesflux.com",
+              "logo": "https://bytesflux.com/logo.png",
+              "image": "https://bytesflux.com/logo.png",
+              "description": "Professional web development, mobile app development, graphic design, and SEO services in Pakistan",
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "Pakistan"
+              },
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service",
+                "availableLanguage": "English"
+              }
+            }),
           }}
         />
       </head>

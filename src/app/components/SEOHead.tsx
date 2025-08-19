@@ -17,7 +17,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   description,
   keywords,
   canonical,
-  ogImage = '/og-image.jpg',
+  ogImage = '/favicon.png',
   structuredData,
   noindex = false
 }) => {
