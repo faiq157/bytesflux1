@@ -5,12 +5,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import MDEditor from '@uiw/react-md-editor';
-import { Upload, X, Eye, EyeOff, Save, ArrowLeft, BookOpen, Loader2, Video, MessageSquare } from 'lucide-react';
+import { Upload, X, Eye, EyeOff, Save, ArrowLeft, BookOpen, Loader2, Video, MessageSquare, File } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { BlogPost, CreateBlogPostData } from '../types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { isValidVideoUrl } from '../utils/videoEmbed';
+import { compressImageWithProgress, ImageCompressor } from '../utils/imageCompression';
 
 
 const postSchema = z.object({
@@ -116,23 +117,52 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
-      return;
-    }
-
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
+    // Validate file type
+    if (!ImageCompressor.isValidImageType(file)) {
       toast.error('Invalid image type. Only JPEG, PNG, WebP, and GIF are allowed.');
       return;
     }
 
+    // Validate file size (max 10MB before compression)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      toast.error('Image size must be less than 10MB before compression');
+      return;
+    }
+
     setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'blog-images');
 
     try {
+      // Show compression progress
+      toast.loading('Compressing image...', { id: 'compression' });
+
+      // Compress image with optimal settings
+      const optimalSettings = ImageCompressor.getOptimalSettings(file.size);
+      const compressedResult = await compressImageWithProgress(
+        file,
+        (progress) => {
+          if (progress === 100) {
+            toast.success('Image compressed successfully!', { id: 'compression' });
+          }
+        },
+        optimalSettings
+      );
+
+      // Show compression results
+      const originalSize = ImageCompressor.formatFileSize(compressedResult.originalSize);
+      const compressedSize = ImageCompressor.formatFileSize(compressedResult.compressedSize);
+      const savings = compressedResult.compressionRatio.toFixed(1);
+
+      toast.success(
+        `Image compressed: ${originalSize} → ${compressedSize} (${savings}% smaller)`,
+        { duration: 4000 }
+      );
+
+      // Upload compressed image
+      const formData = new FormData();
+      formData.append('file', compressedResult.file);
+      formData.append('folder', 'blog-images');
+
       const response = await fetch('/blog/api/upload', {
         method: 'POST',
         body: formData,
@@ -148,8 +178,8 @@ export default function BlogPostForm({ post, onSave, onCancel }: BlogPostFormPro
         toast.error(error.error || 'Failed to upload image');
       }
     } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
+      console.error('Error processing image:', error);
+      toast.error('Failed to process image');
     } finally {
       setUploading(false);
     }
@@ -702,8 +732,17 @@ Read more: ${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/blog/$
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
                     <label className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                      <Upload className="w-4 h-4 mr-2" />
-                      {uploading ? 'Uploading...' : 'Upload Image'}
+                      {uploading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Compressing...
+                        </>
+                      ) : (
+                        <>
+                          <File className="w-4 h-4 mr-2" />
+                          Upload & Compress
+                        </>
+                      )}
                       <input
                         type="file"
                         accept="image/*"
