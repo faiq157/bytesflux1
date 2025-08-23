@@ -103,7 +103,7 @@ const WhyChooseBytesFluxPage = () => {
                 4. Proven Track Record
               </h3>
               <p className="mb-6">
-                With over 150+ successful projects completed and 80+ satisfied clients, BytesFlux has 
+                With over 50+ successful projects completed and 80+ satisfied clients, BytesFlux has 
                 established a strong reputation for delivering quality results. Our portfolio showcases 
                 diverse projects across various industries.
               </p>
