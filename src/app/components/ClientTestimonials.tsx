@@ -95,7 +95,7 @@ const ClientTestimonials: React.FC = () => {
             Client Success Stories
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-            Trusted by <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">500+</span> Clients
+            Trusted by <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">80+</span> Clients
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Discover why businesses across Pakistan choose BytesFlux for their digital transformation. 
@@ -327,11 +327,11 @@ const ClientTestimonials: React.FC = () => {
         <div className="mt-20 text-center">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">500+</div>
+              <div className="text-3xl md:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">80+</div>
               <div className="text-gray-600 dark:text-gray-400">Happy Clients</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">200+</div>
+              <div className="text-3xl md:text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">50+</div>
               <div className="text-gray-600 dark:text-gray-400">Projects Completed</div>
             </div>
             <div className="text-center">
