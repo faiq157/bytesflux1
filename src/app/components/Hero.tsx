@@ -155,8 +155,8 @@ const Hero = () => {
                     {/* Optimized Stats */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-20 border-t border-gray-200 dark:border-gray-700">
                         {[
-                            { label: 'Projects Completed', value: '50+', icon: '' },
-                            { label: 'Happy Clients', value: '80+', icon: '' },
+                            { label: 'Projects Completed', value: '60+', icon: '' },
+                            { label: 'Happy Clients', value: '50+', icon: '' },
                             { label: 'Years Experience', value: '5+', icon: '' },
                             { label: 'Team Experts', value: '12+', icon: '' }
                         ].map((stat, index) => (
