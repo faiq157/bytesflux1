@@ -94,7 +94,7 @@ export default function Home() {
           <Services />
           <About />
           <Team />
-          <CEOStory />
+{/*           <CEOStory /> */}
           <ClientTestimonials />
           <Contact />
         </main>
