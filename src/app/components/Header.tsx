@@ -116,7 +116,7 @@ const Header = () => {
                 
               
                 
-                {['About', 'Team', 'CEO Story', 'Contact'].map((item) => (
+                {['About', 'Team', 'Contact'].map((item) => (
                   <button
                     key={item}
                     onClick={() => scrollToSection(item.toLowerCase().replace(' ', '-'))}
