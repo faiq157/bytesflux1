@@ -130,7 +130,7 @@ const AdminLogin: React.FC = () => {
           </form>
 
           {/* Demo Credentials */}
-          <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-700/50">
+          {/* <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-700/50">
             <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
               Demo Credentials
@@ -139,7 +139,7 @@ const AdminLogin: React.FC = () => {
               <p><strong>Username:</strong> admin</p>
               <p><strong>Password:</strong> bytesflux2024</p>
             </div>
-          </div>
+          </div> */}
 
           {/* Security Note */}
           <div className="mt-6 text-center">

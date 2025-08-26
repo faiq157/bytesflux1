@@ -2,10 +2,6 @@ import Image from "next/image";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Services from "./components/Services";
-import About from "./components/About";
-import Team from "./components/Team";
-import CEOStory from "./components/CEOStory";
-import ClientTestimonials from "./components/ClientTestimonials";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import SEOHead from "./components/SEOHead";
@@ -15,7 +11,7 @@ export default function Home() {
     <>
       <SEOHead
         title="BytesFlux - Professional Web Development & Digital Solutions in Pakistan"
-        description="BytesFlux is Pakistan's premier digital solutions company, specializing in comprehensive web development, mobile app development, graphic design, and SEO services. With over 5 years of experience, we deliver custom digital solutions that drive business growth and digital transformation. Our expert team creates responsive websites, native mobile applications, stunning visual designs, and implements search engine optimization strategies that boost online visibility. We serve businesses of all sizes across Pakistan, offering competitive pricing without compromising on quality. From e-commerce platforms to corporate websites, iOS and Android apps to brand identity design, our services are tailored to meet your specific business needs. Trust BytesFlux to be your digital partner in achieving online success and market leadership."
+        description="BytesFlux delivers cutting-edge software development, stunning graphic design, and strategic social media management. We transform your ideas into powerful digital solutions."
         keywords="web development Pakistan, mobile app development, graphic design services, SEO services Pakistan, digital solutions, custom websites, e-commerce development, software development, IT services Pakistan"
         canonical="/"
         structuredData={{
@@ -30,7 +26,6 @@ export default function Home() {
           "sameAs": [
             "https://facebook.com/bytesflux",
             "https://twitter.com/bytesflux",
-        
             "https://instagram.com/bytesflux"
           ],
           "contactPoint": {
@@ -92,10 +87,6 @@ export default function Home() {
         <main>
           <Hero />
           <Services />
-          <About />
-          <Team />
-{/*           <CEOStory /> */}
-          <ClientTestimonials />
           <Contact />
         </main>
         <Footer />

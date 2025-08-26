@@ -1,17 +1,22 @@
 User-agent: *
 Allow: /
 
-# Sitemap
+# Sitemap location
 Sitemap: https://bytesflux.com/sitemap.xml
 
 # Disallow admin and private areas
 Disallow: /admin/
 Disallow: /BlogEditorDashboard/
 Disallow: /api/
+Disallow: /_next/
+Disallow: /node_modules/
 
-# Allow blog posts
+# Allow important pages
 Allow: /blog/
-Allow: /blog/*/
+Allow: /services/
+Allow: /about/
+Allow: /contact/
+Allow: /faq/
 
-# Crawl delay (optional)
+# Crawl delay (optional - be respectful to servers)
 Crawl-delay: 1 
