@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Code, Palette, Smartphone, Search, Globe, Zap, ExternalLink, Github, Eye } from 'lucide-react';
 import SEOHead from '../components/SEOHead';

@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Star, Quote, User, Award, ThumbsUp, Heart, Zap } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
