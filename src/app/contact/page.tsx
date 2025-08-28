@@ -4,7 +4,6 @@ import { Mail, Phone, MapPin, Clock, Send, MessageCircle, CheckCircle, AlertCirc
 import SEOHead from '../components/SEOHead';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import emailjs from 'emailjs-com';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -71,29 +70,20 @@ const ContactPage = () => {
     setSubmitStatus('idle');
 
     try {
-      // Prepare email template parameters
-      const templateParams = {
-        from_name: `${formData.firstName} ${formData.lastName}`,
-        from_email: formData.email,
-        phone: formData.phone,
-        service: formData.service,
-        budget: formData.budget,
-        message: formData.message,
-        to_name: 'BytesFlux Team',
-        reply_to: formData.email
-      };
+      // Send form data to our API
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-      // Send email using EmailJS
-      const result = await emailjs.send(
-        'service_floz7dm', // Your EmailJS service ID
-        'template_y9gnb25', // Your EmailJS template ID
-        templateParams,
-        'mtUUp7XG7Hie8btGe' // Your EmailJS public key
-      );
+      const result = await response.json();
 
-      if (result.status === 200) {
+      if (response.ok && result.success) {
         setSubmitStatus('success');
-        setSubmitMessage('Thank you for your message! We\'ll get back to you within 24 hours.');
+        setSubmitMessage(result.message);
         
         // Reset form
         setFormData({
@@ -106,10 +96,10 @@ const ContactPage = () => {
           message: ''
         });
       } else {
-        throw new Error('Failed to send email');
+        throw new Error(result.error || 'Failed to send message');
       }
     } catch (error) {
-      console.error('Email submission error:', error);
+      console.error('Form submission error:', error);
       setSubmitStatus('error');
       setSubmitMessage('Sorry, there was an error sending your message. Please try again or contact us directly.');
     } finally {
@@ -240,6 +230,19 @@ const ContactPage = () => {
                 )}
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Honeypot field - hidden from users but visible to bots */}
+                  <div style={{ display: 'none' }}>
+                    <input
+                      type="text"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      defaultValue=""
+                      readOnly
+                      style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0, pointerEvents: 'none' }}
+                    />
+                  </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

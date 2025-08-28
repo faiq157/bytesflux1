@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import emailjs from 'emailjs-com';
+// import emailjs from 'emailjs-com';
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -10,23 +10,60 @@ const Contact = () => {
     message: ''
   });
 
- const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  emailjs.send(
-    'service_floz7dm',
-    'template_y9gnb25',
-    formData,
-    'mtUUp7XG7Hie8btGe'
-  ).then(
-    (result) => {
-      alert('Thank you for your message! We\'ll get back to you soon.');
-      setFormData({ name: '', email: '', company: '', message: '' });
-    },
-    (error) => {
-      alert('Oops! Something went wrong. Please try again.');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+      // Prepare data for the API
+      const apiData = {
+        firstName: formData.name.split(' ')[0] || formData.name,
+        lastName: formData.name.split(' ').slice(1).join(' ') || '',
+        email: formData.email,
+        phone: '',
+        service: 'General Inquiry',
+        budget: '',
+        message: formData.message
+      };
+
+      // Send form data to our API
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setSubmitStatus('success');
+        setSubmitMessage(result.message);
+        
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          company: '',
+          message: ''
+        });
+      } else {
+        throw new Error(result.error || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitStatus('error');
+      setSubmitMessage('Sorry, there was an error sending your message. Please try again or contact us directly.');
+    } finally {
+      setIsSubmitting(false);
     }
-  );
-};
+  };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
@@ -101,6 +138,45 @@ const Contact = () => {
           {/* Contact Form */}
           <div className="transform hover:translate-x-2 transition-transform duration-300">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Honeypot field - hidden from users but visible to bots */}
+              <div style={{ display: 'none' }}>
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  defaultValue=""
+                  readOnly
+                  style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0, pointerEvents: 'none' }}
+                />
+              </div>
+
+              {/* Success/Error Messages */}
+              {submitStatus === 'success' && (
+                <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="h-5 w-5 bg-green-500 rounded-full mr-3 flex items-center justify-center">
+                      <svg className="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <p className="text-green-800 dark:text-green-200">{submitMessage}</p>
+                  </div>
+                </div>
+              )}
+
+              {submitStatus === 'error' && (
+                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="h-5 w-5 bg-red-500 rounded-full mr-3 flex items-center justify-center">
+                      <svg className="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <p className="text-red-800 dark:text-red-200">{submitMessage}</p>
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="group">
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors duration-200">
@@ -168,11 +244,27 @@ const Contact = () => {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-teal-600 text-white px-8 py-4 rounded-lg font-semibold hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 group overflow-hidden"
+                disabled={isSubmitting}
+                className={`w-full px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 group overflow-hidden ${
+                  isSubmitting
+                    ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-teal-600 hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105'
+                } text-white`}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-teal-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative z-10">Send Message</span>
-                <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform relative z-10" />
+                <div className={`absolute inset-0 opacity-0 transition-opacity duration-300 ${
+                  isSubmitting ? 'hidden' : 'bg-gradient-to-r from-blue-700 to-teal-700 group-hover:opacity-100'
+                }`}></div>
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    <span className="relative z-10">Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="relative z-10">Send Message</span>
+                    <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform relative z-10" />
+                  </>
+                )}
               </button>
             </form>
           </div>
