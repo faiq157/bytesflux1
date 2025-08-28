@@ -1,27 +1,43 @@
-import React from 'react';
-import { Mail, Phone, MapPin, Clock, Send, MessageCircle } from 'lucide-react';
+"use client";
+import React, { useState } from 'react';
+import { Mail, Phone, MapPin, Clock, Send, MessageCircle, CheckCircle, AlertCircle } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import emailjs from 'emailjs-com';
 
 const ContactPage = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    service: '',
+    budget: '',
+    message: ''
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
+
   const contactInfo = [
     {
       icon: Phone,
       title: 'Phone',
-      details: '+92 300 1234567',
+      details: '+92 3275734699',
       description: 'Call us for immediate assistance'
     },
     {
       icon: Mail,
       title: 'Email',
-      details: 'info@bytesflux.com',
+      details: 'hello@bytesflux.com',
       description: 'Send us a detailed message'
     },
     {
       icon: MapPin,
       title: 'Location',
-      details: 'Karachi, Pakistan',
+      details: 'Islamabad, Pakistan',
       description: 'Serving clients worldwide'
     },
     {
@@ -41,6 +57,71 @@ const ContactPage = () => {
     'Consultation'
   ];
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+      // Prepare email template parameters
+      const templateParams = {
+        from_name: `${formData.firstName} ${formData.lastName}`,
+        from_email: formData.email,
+        phone: formData.phone,
+        service: formData.service,
+        budget: formData.budget,
+        message: formData.message,
+        to_name: 'BytesFlux Team',
+        reply_to: formData.email
+      };
+
+      // Send email using EmailJS
+      const result = await emailjs.send(
+        'service_floz7dm', // Your EmailJS service ID
+        'template_y9gnb25', // Your EmailJS template ID
+        templateParams,
+        'mtUUp7XG7Hie8btGe' // Your EmailJS public key
+      );
+
+      if (result.status === 200) {
+        setSubmitStatus('success');
+        setSubmitMessage('Thank you for your message! We\'ll get back to you within 24 hours.');
+        
+        // Reset form
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          service: '',
+          budget: '',
+          message: ''
+        });
+      } else {
+        throw new Error('Failed to send email');
+      }
+    } catch (error) {
+      console.error('Email submission error:', error);
+      setSubmitStatus('error');
+      setSubmitMessage('Sorry, there was an error sending your message. Please try again or contact us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setSubmitStatus('idle');
+    setSubmitMessage('');
+  };
+
   return (
     <>
       <SEOHead
@@ -57,11 +138,11 @@ const ContactPage = () => {
           "mainEntity": {
             "@type": "Organization",
             "name": "BytesFlux",
-            "telephone": "+92 300 1234567",
-            "email": "info@bytesflux.com",
+            "telephone": "+92 3275734699",
+            "email": "hello@bytesflux.com",
             "address": {
               "@type": "PostalAddress",
-              "addressLocality": "Karachi",
+              "addressLocality": "Islamabad",
               "addressCountry": "Pakistan"
             }
           }
@@ -126,8 +207,39 @@ const ContactPage = () => {
                   Fill out the form below and we'll get back to you within 24 hours. 
                   For urgent projects, feel free to call us directly.
                 </p>
+
+                {/* Success/Error Messages */}
+                {submitStatus === 'success' && (
+                  <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                      <p className="text-green-800 dark:text-green-200">{submitMessage}</p>
+                    </div>
+                    <button
+                      onClick={resetForm}
+                      className="mt-2 text-sm text-green-600 dark:text-green-400 hover:underline"
+                    >
+                      Send another message
+                    </button>
+                  </div>
+                )}
+
+                {submitStatus === 'error' && (
+                  <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <div className="flex items-center">
+                      <AlertCircle className="h-5 w-5 text-red-500 mr-3" />
+                      <p className="text-red-800 dark:text-red-200">{submitMessage}</p>
+                    </div>
+                    <button
+                      onClick={resetForm}
+                      className="mt-2 text-sm text-red-600 dark:text-red-400 hover:underline"
+                    >
+                      Try again
+                    </button>
+                  </div>
+                )}
                 
-                <form className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -138,6 +250,8 @@ const ContactPage = () => {
                         id="firstName"
                         name="firstName"
                         required
+                        value={formData.firstName}
+                        onChange={handleInputChange}
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                         placeholder="Your first name"
                       />
@@ -151,6 +265,8 @@ const ContactPage = () => {
                         id="lastName"
                         name="lastName"
                         required
+                        value={formData.lastName}
+                        onChange={handleInputChange}
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                         placeholder="Your last name"
                       />
@@ -166,6 +282,8 @@ const ContactPage = () => {
                       id="email"
                       name="email"
                       required
+                      value={formData.email}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                       placeholder="your.email@example.com"
                     />
@@ -179,8 +297,10 @@ const ContactPage = () => {
                       type="tel"
                       id="phone"
                       name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="+92 300 1234567"
+                      placeholder="+92 3275734699"
                     />
                   </div>
                   
@@ -192,6 +312,8 @@ const ContactPage = () => {
                       id="service"
                       name="service"
                       required
+                      value={formData.service}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                     >
                       <option value="">Select a service</option>
@@ -211,6 +333,8 @@ const ContactPage = () => {
                     <select
                       id="budget"
                       name="budget"
+                      value={formData.budget}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                     >
                       <option value="">Select budget range</option>
@@ -231,6 +355,8 @@ const ContactPage = () => {
                       name="message"
                       rows={5}
                       required
+                      value={formData.message}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                       placeholder="Tell us about your project, requirements, timeline, and any specific features you need..."
                     />
@@ -238,10 +364,24 @@ const ContactPage = () => {
                   
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-blue-600 to-teal-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-teal-700 transition-all duration-200 flex items-center justify-center"
+                    disabled={isSubmitting}
+                    className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center ${
+                      isSubmitting
+                        ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700'
+                    } text-white`}
                   >
-                    <Send className="h-5 w-5 mr-2" />
-                    Send Message
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-5 w-5 mr-2" />
+                        Send Message
+                      </>
+                    )}
                   </button>
                 </form>
               </div>

@@ -196,40 +196,6 @@ const AboutPage = () => {
             </div>
           </div>
         </section>
-
-        {/* Team Section */}
-        <section className="py-20 bg-gray-50 dark:bg-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Meet Our Team
-              </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Skilled professionals passionate about delivering exceptional digital solutions
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {team.map((member, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg text-center">
-                  <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-teal-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <Users className="h-10 w-10 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    {member.name}
-                  </h3>
-                  <p className="text-blue-600 dark:text-blue-400 font-medium mb-3">
-                    {member.role}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {member.expertise}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* CTA Section */}
         <section className="py-20 bg-blue-600">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
