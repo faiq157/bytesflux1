@@ -15,6 +15,8 @@ const Footer = () => {
     { name: 'Home', href: '/', isInternal: true },
     { name: 'Services', href: '/services', isInternal: true },
     { name: 'About', href: '/about', isInternal: true },
+    { name: 'Privacy Policy', href: '/privacy-policy', isInternal: true },
+    { name: 'Terms of Service', href: '/terms', isInternal: true },
     { name: 'Contact', href: '#contact', isInternal: false }
   ];
 
