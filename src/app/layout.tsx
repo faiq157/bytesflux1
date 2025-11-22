@@ -155,6 +155,13 @@ export default function RootLayout({
             `,
           }}
         />
+
+        {/* Google AdSense global verification */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8457324050105904"
+          crossOrigin="anonymous"
+        />
         
         {/* Organization Logo Schema */}
         <script
